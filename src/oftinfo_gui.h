@@ -34,9 +34,9 @@
 
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class ShipDriverBase
+/// Class OFTinfoBase
 ///////////////////////////////////////////////////////////////////////////////
-class ShipDriverBase : public wxDialog
+class OFTinfoBase : public wxDialog
 {
 	private:
 
@@ -105,16 +105,16 @@ class ShipDriverBase : public wxDialog
 		wxTextCtrl* m_textCtrlSART;
 		wxTimer m_timer1;
 
-		ShipDriverBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		OFTinfoBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 
-		~ShipDriverBase();
+		~OFTinfoBase();
 
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-/// Class shipdriverPreferences
+/// Class oftinfoPreferences
 ///////////////////////////////////////////////////////////////////////////////
-class shipdriverPreferences : public wxDialog
+class oftinfoPreferences : public wxDialog
 {
 	private:
 
@@ -129,9 +129,9 @@ class shipdriverPreferences : public wxDialog
 		wxTextCtrl* m_textCtrlMMSI;
 		wxCheckBox* m_cbNMEAToFile;
 
-		shipdriverPreferences( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Preferences"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxCAPTION|wxRESIZE_BORDER );
+		oftinfoPreferences( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Preferences"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxCAPTION|wxRESIZE_BORDER );
 
-		~shipdriverPreferences();
+		~oftinfoPreferences();
 
 };
 

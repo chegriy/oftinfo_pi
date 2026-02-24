@@ -35,8 +35,8 @@ set(PKG_NAME OFTinfo_pi)
 set(PKG_VERSION  0.0.1)
 set(PKG_PRERELEASE "")  # Empty, or a tag like 'beta'
 
-set(DISPLAY_NAME ShipDriver)    # Dialogs, installer artifacts, ...
-set(PLUGIN_API_NAME ShipDriver) # As of GetCommonName() in plugin API
+set(DISPLAY_NAME OFTinfo)    # Dialogs, installer artifacts, ...
+set(PLUGIN_API_NAME OFTinfo) # As of GetCommonName() in plugin API
 set(PKG_SUMMARY "OFT informer")
 set(PKG_DESCRIPTION [=[
 OFT informer.

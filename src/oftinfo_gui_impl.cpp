@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  ShipDriver Plugin
+ * Purpose:  OFTinfo Plugin
  * Author:   Mike Rossiter
  *
  ***************************************************************************
@@ -40,8 +40,8 @@
 #include "wx/tglbtn.h"
 
 #include "qtstylesheet.h"
-#include "shipdriver_gui_impl.h"
-#include "shipdriver_pi.h"
+#include "oftinfo_gui_impl.h"
+#include "oftinfo_pi.h"
 
 #ifdef __ANDROID__
 wxWindow* g_Window;
@@ -58,7 +58,7 @@ void assign(char* dest, char* arrTest2) { strcpy(dest, arrTest2); }
 
 Dlg::Dlg(wxWindow* parent, wxWindowID id, const wxString& title,
          const wxPoint& pos, const wxSize& size, long style)
-    : ShipDriverBase(parent, id, title, pos, size, style) {
+    : OFTinfoBase(parent, id, title, pos, size, style) {
   this->Fit();
   dbg = false;  // for debug output set to true
   initLat = 0;
@@ -73,7 +73,7 @@ Dlg::Dlg(wxWindow* parent, wxWindowID id, const wxString& title,
   m_bUsingFollow = false;
   m_bInvalidPolarsFile = false;
   m_bInvalidGribFile = false;
-  m_bShipDriverHasStarted = false;
+  m_bOFTinfoHasStarted = false;
 
   m_bSART = false;
   m_bDISTRESS = false;
@@ -109,12 +109,12 @@ Dlg::Dlg(wxWindow* parent, wxWindowID id, const wxString& title,
   wxFileConfig* pConf = GetOCPNConfigObject();
 
   if (pConf) {
-    pConf->SetPath("/PlugIns/ShipDriver_pi");
+    pConf->SetPath("/PlugIns/OFTinfo_pi");
 
-    pConf->Read("shipdriverUseAis", &m_bUseAis, 0);
-    pConf->Read("shipdriverUseFile", &m_bUseFile, 0);
-    pConf->Read("shipdriverMMSI", &m_tMMSI, "123456789");
-    pConf->Read("shipdriverUseNMEA", &m_bUseNMEA, 0);
+    pConf->Read("oftinfoUseAis", &m_bUseAis, 0);
+    pConf->Read("oftinfoUseFile", &m_bUseFile, 0);
+    pConf->Read("oftinfoMMSI", &m_tMMSI, "123456789");
+    pConf->Read("oftinfoUseNMEA", &m_bUseNMEA, 0);
   }
 }
 
@@ -286,7 +286,7 @@ void Dlg::StartDriving() {
     wxString wildcard = wxT("Text files (*.txt)|*.txt|All files (*.*)|*.*");
 
     wxString s = "/";
-    const char* pName = "ShipDriver_pi";
+    const char* pName = "OFTinfo_pi";
     wxString defaultDir = GetPluginDataDir(pName) + s + "data" + s;
 
     wxString defaultFilename = wxEmptyString;
@@ -294,7 +294,7 @@ void Dlg::StartDriving() {
                          wildcard, wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (filedlg.ShowModal() != wxID_OK) {
-      wxMessageBox(_("ShipDriver has been stopped"));
+      wxMessageBox(_("OFTinfo has been stopped"));
       return;
     } else {
       nmeafile = new wxTextFile(filedlg.GetPath());
@@ -303,12 +303,12 @@ void Dlg::StartDriving() {
     }
   }
 
-  if (m_bUseNMEA && !m_bShipDriverHasStarted) {
+  if (m_bUseNMEA && !m_bOFTinfoHasStarted) {
     wxString caption = wxT("Choose a file");
     wxString wildcard = wxT("Text files (*.txt)|*.txt|All files (*.*)|*.*");
 
     wxString s = "/";
-    const char* pName = "ShipDriver_pi";
+    const char* pName = "OFTinfo_pi";
     wxString defaultDir = GetPluginDataDir(pName) + s + "data" + s;
 
     wxString defaultFilename = wxEmptyString;
@@ -316,7 +316,7 @@ void Dlg::StartDriving() {
                           wildcard, wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
     if (filedlg2.ShowModal() != wxID_OK) {
-      wxMessageBox(_("ShipDriver has been stopped"));
+      wxMessageBox(_("OFTinfo has been stopped"));
       return;
     } else {
       nmeastream = new wxTextFile(filedlg2.GetPath());
@@ -325,7 +325,7 @@ void Dlg::StartDriving() {
     }
   }
 
-  m_bShipDriverHasStarted = true;
+  m_bOFTinfoHasStarted = true;
   m_bUsingWind = false;
 
   m_textCtrlRudderStbd->SetValue("");
@@ -370,7 +370,7 @@ void Dlg::SetStop() {
   m_bAuto = false;
   m_bUsingWind = false;
   m_bUsingFollow = false;
-  m_bShipDriverHasStarted = false;
+  m_bOFTinfoHasStarted = false;
   m_buttonStandby->SetBackgroundColour(wxColour(0, 255, 0));
   m_buttonAuto->SetBackgroundColour(wxColour(255, 255, 255));
   m_buttonWind->SetBackgroundColour(wxColour(0, 255, 0));
@@ -424,7 +424,7 @@ void Dlg::OnPlus1(wxCommandEvent& event) {
 }
 
 void Dlg::OnAuto(wxCommandEvent& event) {
-  if (m_bShipDriverHasStarted) {
+  if (m_bOFTinfoHasStarted) {
     if (m_bGotAPB) {
       m_bAuto = true;
       m_buttonStandby->SetBackgroundColour(wxColour(255, 0, 0));
@@ -495,7 +495,7 @@ void Dlg::OnSART(wxCommandEvent& event) {
       m_buttonSART->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnMOB(wxCommandEvent& event) {
@@ -513,7 +513,7 @@ void Dlg::OnMOB(wxCommandEvent& event) {
       m_buttonMOB->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnEPIRB(wxCommandEvent& event) {
@@ -531,7 +531,7 @@ void Dlg::OnEPIRB(wxCommandEvent& event) {
       m_buttonEPIRB->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnDistressAlert(wxCommandEvent& event) {
@@ -547,7 +547,7 @@ void Dlg::OnDistressAlert(wxCommandEvent& event) {
       m_buttonDistressAlert->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnDistressCancel(wxCommandEvent& event) {
@@ -571,7 +571,7 @@ void Dlg::OnDistressCancel(wxCommandEvent& event) {
       m_buttonDistressCancel->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnDistressRelay(wxCommandEvent& event) {
@@ -587,7 +587,7 @@ void Dlg::OnDistressRelay(wxCommandEvent& event) {
       m_buttonDistressRelay->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnRelayCancel(wxCommandEvent& event) {
@@ -611,7 +611,7 @@ void Dlg::OnRelayCancel(wxCommandEvent& event) {
       m_buttonRelayCancel->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnCollision(wxCommandEvent& event) {
@@ -632,7 +632,7 @@ void Dlg::OnCollision(wxCommandEvent& event) {
       m_buttonCollision->SetBackgroundColour(wxColour(0, 255, 0));
     }
   } else
-    wxMessageBox(_("ShipDriver has not been started"));
+    wxMessageBox(_("OFTinfo has not been started"));
 }
 
 void Dlg::OnPause(wxCommandEvent& event) {
@@ -656,7 +656,7 @@ void Dlg::ResetPauseButton() {
 
 void Dlg::OnClose(wxCloseEvent& event) {
   if (m_timer->IsRunning()) m_timer->Stop();
-  plugin->OnShipDriverDialogClose();
+  plugin->OnOFTinfoDialogClose();
 }
 
 void Dlg::Notify() {
@@ -1900,8 +1900,8 @@ void Dlg::OnWind(wxCommandEvent& event) {
     wxMessageBox(_("Please right-click and choose vessel start position"));
     return;
   }
-  if (!m_bShipDriverHasStarted) {
-    wxMessageBox(_("Please start ShipDriver"));
+  if (!m_bOFTinfoHasStarted) {
+    wxMessageBox(_("Please start OFTinfo"));
     return;
   }
 
@@ -1950,7 +1950,7 @@ double Dlg::GetPolarSpeed(double lat, double lon, double cse) {
   wxString error;
   wxString s = "/";
 
-  const char* pName = "ShipDriver_pi";
+  const char* pName = "OFTinfo_pi";
 
   wxString polars_path = GetPluginDataDir(pName) + s + "data" + s;
   wxString myFile = polars_path + "arcona.xml";
@@ -1997,7 +1997,7 @@ double Dlg::ReadPolars(wxString filename, double windangle, double windspeed) {
   } else {
     TiXmlHandle root(doc.RootElement());
 
-    if (strcmp(root.Element()->Value(), "ShipDriver")) {
+    if (strcmp(root.Element()->Value(), "OFTinfo")) {
       m_bInvalidPolarsFile = true;
       return -1;
     }
@@ -2308,7 +2308,7 @@ wxString Dlg::StandardPath() {
   // ~/Library/Preferences/opencpn if it exists
   wxString oldPath = (std_path.GetUserConfigDir() + s);
   if (wxDirExists(oldPath) && !wxDirExists(stdPath)) {
-    wxLogMessage("ShipDriver_pi: moving config dir %s to %s", oldPath, stdPath);
+    wxLogMessage("OFTinfo_pi: moving config dir %s to %s", oldPath, stdPath);
     wxRenameFile(oldPath, stdPath);
   }
 #endif

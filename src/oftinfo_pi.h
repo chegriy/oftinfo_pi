@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  ShipDriver Plugin
+ * Purpose:  OFTinfo Plugin
  * Author:   Mike Rossiter
  *
  ***************************************************************************
@@ -45,7 +45,7 @@
 #include "json/writer.h"
 
 #include "ocpn_plugin.h"  //Required for OCPN plugin functions
-#include "shipdriver_gui_impl.h"
+#include "oftinfo_gui_impl.h"
 #include "GribRecordSet.h"
 
 // Define minimum and maximum versions of the grib plugin supported
@@ -76,12 +76,12 @@ static inline bool GribCurrent(GribRecordSet* grib, double lat, double lon,
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-#define ShipDriver_TOOL_POSITION (-1)  ///< toolbar tool default positioning
+#define OFTinfo_TOOL_POSITION (-1)  ///< toolbar tool default positioning
 
-class ShipDriverPi : public opencpn_plugin_118 {
+class OFTinfoPi : public opencpn_plugin_118 {
 public:
-  explicit ShipDriverPi(void* ppimgr);
-  ~ShipDriverPi() override;
+  explicit OFTinfoPi(void* ppimgr);
+  ~OFTinfoPi() override;
 
   //    The required PlugIn Methods
   int Init() override;
@@ -114,13 +114,13 @@ public:
   void SetNMEASentence(wxString& sentence) override;
 
   //    Other public methods
-  void SetShipDriverDialogX(int x) { m_hr_dialog_x = x; };
-  void SetShipDriverDialogY(int x) { m_hr_dialog_y = x; };
-  void SetShipDriverDialogWidth(int x) { m_hr_dialog_width = x; };
-  void SetShipDriverDialogHeight(int x) { m_hr_dialog_height = x; };
-  void SetShipDriverDialogSizeX(int x) { m_hr_dialog_sx = x; }
-  void SetShipDriverDialogSizeY(int x) { m_hr_dialog_sy = x; }
-  void OnShipDriverDialogClose();
+  void SetOFTinfoDialogX(int x) { m_hr_dialog_x = x; };
+  void SetOFTinfoDialogY(int x) { m_hr_dialog_y = x; };
+  void SetOFTinfoDialogWidth(int x) { m_hr_dialog_width = x; };
+  void SetOFTinfoDialogHeight(int x) { m_hr_dialog_height = x; };
+  void SetOFTinfoDialogSizeX(int x) { m_hr_dialog_sx = x; }
+  void SetOFTinfoDialogSizeY(int x) { m_hr_dialog_sy = x; }
+  void OnOFTinfoDialogClose();
 
   int m_hr_dialog_x, m_hr_dialog_y;
 
@@ -145,7 +145,7 @@ private:
   int m_position_menu_id;
   double m_gui_scale_factor;
 
-  ShipDriverPi* plugin;
+  OFTinfoPi* plugin;
 
   Dlg* m_dialog;
 
@@ -158,8 +158,8 @@ private:
   int m_hr_dialog_sx, m_hr_dialog_sy;
   int m_display_width, m_display_height;
   int m_leftclick_tool_id;
-  bool m_show_shipdriver_icon;
-  bool m_show_shipdriver;
+  bool m_show_oftinfo_icon;
+  bool m_show_oftinfo;
 
   bool m_copy_use_ais;
   bool m_copy_use_file;

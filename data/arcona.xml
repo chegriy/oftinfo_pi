@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ShipDriver version="0.1" creator="Opencpn otidalroute plugin">
+<OFTinfo version="0.1" creator="Opencpn otidalroute plugin">
 	<TWA WindAngle=0>
     <SPD WindSpeed=6>0</SPD>        
     <SPD WindSpeed=8>0</SPD>
@@ -110,4 +110,4 @@
     <SPD WindSpeed=20>7.7</SPD>
     <SPD WindSpeed=100>7</SPD>
     </TWA>
-</ShipDriver>
+</OFTinfo>

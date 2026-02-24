@@ -9,6 +9,6 @@
 
 extern void initialize_images(void);
 
-extern wxBitmap* _img_ShipDriverIcon;
+extern wxBitmap* _img_OFTinfoIcon;
 
 #endif /* ICONS_H */

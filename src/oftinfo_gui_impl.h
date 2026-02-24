@@ -1,8 +1,8 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  ShipDriver Plugin
- * Author:   Mike Rossiter
+ * Purpose:  OFTinfo Plugin
+ * Author:   
  *
  ***************************************************************************
  *   Copyright (C) 2017 by Mike Rossiter                                   *
@@ -33,8 +33,8 @@
 #endif
 
 #include "AisMaker.h"
-#include "shipdriver_pi.h"
-#include "shipdriver_gui.h"
+#include "oftinfo_pi.h"
+#include "oftinfo_gui.h"
 #include "ocpn_plugin.h"
 #include "tinyxml.h"
 #include "wx/process.h"
@@ -65,15 +65,15 @@
 #define METER_2_FATHOM 0.5468066492
 
 #ifdef __WXOSX__
-#define SHIPDRIVER_DLG_STYLE \
+#define OFTINFO_DLG_STYLE \
   wxCLOSE_BOX | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER | wxSTAY_ON_TOP
 #else
-#define SHIPDRIVER_DLG_STYLE \
+#define OFTINFO_DLG_STYLE \
   wxCLOSE_BOX | wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER
 #endif
 using namespace std;
 
-class ShipDriverPi;
+class OFTinfoPi;
 
 class rtept {
 public:
@@ -106,13 +106,13 @@ public:
 
 class AisMaker;
 
-class Dlg : public ShipDriverBase {
+class Dlg : public OFTinfoBase {
 public:
   Dlg(wxWindow* parent, wxWindowID id = wxID_ANY,
-      const wxString& title = _("ShipDriver"),
+      const wxString& title = _("OFTinfo"),
       const wxPoint& pos = wxDefaultPosition,
-      const wxSize& size = wxDefaultSize, long style = SHIPDRIVER_DLG_STYLE);
-  ShipDriverPi* plugin;
+      const wxSize& size = wxDefaultSize, long style = OFTINFO_DLG_STYLE);
+  OFTinfoPi* plugin;
 
 #ifdef __ANDROID__
   void OnMouseEvent(wxMouseEvent& event);
@@ -339,7 +339,7 @@ private:
   bool m_bUsingFollow;
   bool m_bInvalidPolarsFile;
   bool m_bInvalidGribFile;
-  bool m_bShipDriverHasStarted;
+  bool m_bOFTinfoHasStarted;
 
   Plugin_WaypointExList* myList;
 };
