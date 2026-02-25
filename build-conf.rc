@@ -2,10 +2,10 @@
 #    0: never
 #    1: always
 #    other numbers: For example 10 means every tenth build.
-android_build_rate=1
+android_build_rate=0
 
 # Should android build be uploaded to cloudsmith? <true|false>
-android_upload="true"
+android_upload="false"
 
 # Should android builds be pushed to catalog clone? <true|false>
-android_git_push="true"
+android_git_push="false"
