@@ -2,6 +2,35 @@
  *
  * Project:  OpenCPN
  * Purpose:  OFTinfo Plugin
+ * Author:   Grigorii Chumakin
+ * Forked from ShipDriver Mike Rossiter Plugin
+ ***************************************************************************
+ *   Copyright (C) 2026 by Grigorii Chumakin                               *
+ *   $EMAIL$                                                               *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   Vlasiha station, Barnaul, PC  656040, RUS.                            *
+ ***************************************************************************
+
+
+
+
+/******************************************************************************
+ * forked from:
+ * Project:  OpenCPN
+ * Purpose:  ShipDriver Plugin
  * Author:   Mike Rossiter
  *
  ***************************************************************************
@@ -46,7 +75,7 @@
 
 #include "ocpn_plugin.h"  //Required for OCPN plugin functions
 #include "oftinfo_gui_impl.h"
-#include "GribRecordSet.h"
+#include "GribRecordSet.h" 
 
 // Define minimum and maximum versions of the grib plugin supported
 #define GRIB_MAX_MAJOR 4
@@ -54,7 +83,7 @@
 #define GRIB_MIN_MAJOR 4
 #define GRIB_MIN_MINOR 1
 
-class Dlg;
+ class Dlg;
 
 static inline bool GribCurrent(GribRecordSet* grib, double lat, double lon,
                                double& c, double& vc) {
@@ -70,7 +99,7 @@ static inline bool GribCurrent(GribRecordSet* grib, double lat, double lon,
   // C += 180;
   if (c > 360) c -= 360;
   return true;
-}
+}   
 
 //----------------------------------------------------------------------------------------------------------
 //    The PlugIn Class Definition

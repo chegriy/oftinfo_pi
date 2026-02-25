@@ -1,3 +1,10 @@
+
+
+
+-24.02.26 forked and renamed OFTinfo project by Grigorii
+first bulded branch is bulded240226 please keep it clear 
+
+//All that is below for ShipDriver plugin template for OFT informer
 3.4.0 Sep13, 2025
 
 * Updating opencpn-libs to latest version.#0559aae
