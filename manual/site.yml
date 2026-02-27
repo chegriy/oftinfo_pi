@@ -1,14 +1,14 @@
 site:
-  title: shipdriver Plugin Manual
+  title: OFTinfo Plugin Manual
   url:  https://nowhere.net
-  start_page: shipdriver:ROOT:index.adoc
+  start_page: OFTinfo:ROOT:index.adoc
 
 content:
   sources:
     - url: ..
       start_path: manual
       branches: HEAD
-      edit_url: https://github.com/Rasbats/shipdriver_pi/edit/master/{path}
+      edit_url: https://github.com/chegriy/oftinfo_pi/edit/master/{path}
 
 ui:   
   bundle:
@@ -21,6 +21,6 @@ output:
 
 asciidoc:
   attributes:
-    copyright: 2021 Mike Rossiter
+    copyright: 2026 Grigorii Chumakin
     license: CC BY-SA 4.0
     license-link: https://creativecommons.org/licenses/by-sa/4.0/

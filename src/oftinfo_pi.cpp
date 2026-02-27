@@ -1,11 +1,10 @@
-/******************************************************************************
+/***************************************************************************
  *
- * Project:  OpenCPN
+ * Project:  OpenCPN  Forked from ShipDriver Mike Rossiter Plugin
  * Purpose:  OFTinfo Plugin
- * Author:   
- *
+ * Author:   Grigorii Chumakin
  ***************************************************************************
- *   Copyright (C) 2017 by Mike Rossiter                                *
+ *   Copyright (C) 2026 by Grigorii Chumakin                               *
  *   $EMAIL$                                                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -21,7 +20,7 @@
  *   You should have received a copy of the GNU General Public License     *
  *   along with this program; if not, write to the                         *
  *   Free Software Foundation, Inc.,                                       *
- *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ *   Vlasiha station, Barnaul, PC  656040, RUS.                            *
  ***************************************************************************
  */
 
@@ -67,11 +66,6 @@ OFTinfoPi::OFTinfoPi(void* ppimgr)
     : opencpn_plugin_118(ppimgr),
       m_hr_dialog_x(0),
       m_hr_dialog_y(8),
-      m_is_grib_valid(false),
-      m_grib_lat(0),
-      m_grib_lon(0),
-      m_tr_spd(0),
-      m_tr_dir(0),
       m_cursor_lat(0),
       m_cursor_lon(0),
       m_position_menu_id(-1),
@@ -87,11 +81,8 @@ OFTinfoPi::OFTinfoPi(void* ppimgr)
       m_display_width(0),
       m_display_height(0),
       m_leftclick_tool_id(-1),
-      m_show_oftinfo_icon(false),
-      m_copy_use_ais(false),
-      m_copy_use_file(false), 
-      m_copy_use_nmea(false) 
-
+      m_show_oftinfo_icon(false)
+    //may be need add preverence variamle?? gr
 {
   // Create the PlugIn icons
   initialize_images();
@@ -116,17 +107,48 @@ OFTinfoPi::~OFTinfoPi() {
     wxFileConfig* pConf = GetOCPNConfigObject();
 
     if (pConf) {
-      pConf->SetPath("/PlugIns/OFTinfo_pi");
-      pConf->Write("oftinfoUseAis", m_copy_use_ais);
-      pConf->Write("oftinfoUseFile", m_copy_use_file);
-      pConf->Write("oftinfoMMSI", m_copy_mmsi);
-      pConf->Write("oftinfoUseNMEA", m_copy_use_nmea);
+      // AIS Targets
+      pConf->Write("oftinfoAisToFile", m_copy_AisToFile);
+      pConf->Write("oftinfoAisToMQTT", m_copy_AisToMQTT);
+      pConf->Write("oftinfoAisToPSQL", m_copy_AisToPSQL);
+      pConf->Write("oftinfoAISTransPeriod", m_copy_AISTransPeriod);
+      // Target filter
+      pConf->Write("oftinfoAISTargCargoOnly", m_copy_AISTargCargoOnly);
+      pConf->Write("oftinfoAISTargZeroInc", m_copy_AISTargZeroInc);
+      // Own Ship
+      pConf->Write("oftinfoOwnMMSI", m_copy_OwnMMSI);
+      pConf->Write("oftinfoAISTransmitAIVDO", m_copy_AISTransmitAIVDO);
+      // OFT
+      pConf->Write("oftinfoOFTMMSI1", m_copy_OFTMMSI1);
+      pConf->Write("oftinfoOFTMMSI2", m_copy_OFTMMSI2);
+      // load areas
+      pConf->Write("oftinfoMonToFile", m_copy_MonToFile);
+      pConf->Write("oftinfoMonToMQTT", m_copy_MonToMQTT);
+      pConf->Write("oftinfoMonToPSQ", m_copy_MonToPSQL);
+      pConf->Write("oftinfoMonTransPeriod", m_copy_MonTransPeriod);
+      // file
+      pConf->Write("oftinfoAisFileName", m_copy_AisFileName);
+      pConf->Write("oftinfoAISFilePath", m_copy_AISFilePath);
+      // MQTT
+      pConf->Write("oftinfoMQTTBrokerIP", m_copy_MQTTBrokerIP);
+      pConf->Write("oftinfoMQTTBrokerPort", m_copy_MQTTBrokerPort);
+      pConf->Write("oftinfoMQTTclientID", m_copy_MQTTclientID);
+      pConf->Write("oftinfoMQTTuser", m_copy_MQTTuser);
+      pConf->Write("oftinfoMQTTpassw", m_copy_MQTTpassw);
+      pConf->Write("oftinfoMQTTPublishTopic", m_copy_MQTTPublishTopic);
+      pConf->Write("oftinfoMQTTSubscribeTopic", m_copy_MQTTSubscribeTopic);
+      // Postgresql
+      pConf->Write("oftinfoSQLip", m_copy_SQLip);
+      pConf->Write("oftinfoSQLport", m_copy_SQLport);
+      pConf->Write("oftinfoSQLuser", m_copy_SQLuser);
+      pConf->Write("oftinfoSQLpassw", m_copy_SQLpassw);
+      pConf->Write("oftinfoSQLDBName", m_copy_SQLDBName);
     }
   }
 }
 
 int OFTinfoPi::Init() {
-  AddLocaleCatalog("opencpn-OFTinfo_pi");
+  /**/ AddLocaleCatalog("opencpn-OFTinfo_pi");
 
   // Set some default private member parameters
   m_hr_dialog_x = 40;
@@ -169,7 +191,7 @@ int OFTinfoPi::Init() {
 
 bool OFTinfoPi::DeInit() {
   //    Record the dialog position
-  if (m_dialog) {
+   if (m_dialog) {
     // Capture dialog position
     wxPoint p = m_dialog->GetPosition();
     wxRect r = m_dialog->GetRect();
@@ -177,18 +199,19 @@ bool OFTinfoPi::DeInit() {
     SetOFTinfoDialogY(p.y);
     SetOFTinfoDialogSizeX(r.GetWidth());
     SetOFTinfoDialogSizeY(r.GetHeight());
-    if (m_copy_use_nmea) {
+    /* if (m_copy_use_nmea) {
       if (m_dialog->nmeastream->IsOpened()) {
         m_dialog->nmeastream->Write();
-        m_dialog->nmeastream->Close();
+         m_dialog->nmeastream->Close();
       }
     }
+    */
   
 
-    if ((m_dialog->m_timer) && (m_dialog->m_timer->IsRunning())) {
-      // need to stop the timer or crash on exit
+   if ((m_dialog->m_timer) && (m_dialog->m_timer->IsRunning())) {
+    //  need to stop the timer or crash on exit
       m_dialog->m_timer->Stop();
-    }
+   }
     m_dialog->Close();
     delete m_dialog;
     m_dialog = nullptr;
@@ -198,9 +221,7 @@ bool OFTinfoPi::DeInit() {
   }
 
   SaveConfig();
-
   RequestRefresh(m_parent_window);  // refresh main window
-
   return true;
 }
 
@@ -240,36 +261,215 @@ void OFTinfoPi::SetColorScheme(PI_ColorScheme cs) {
 }
 
 void OFTinfoPi::ShowPreferencesDialog(wxWindow* parent) {
-  auto* pref = new oftinfoPreferences(parent);
+    auto* pref = new oftinfoPreferences(parent);
+     // AIS Targets
+    pref->m_cbAisToFile->SetValue(m_copy_AisToFile);
+    pref->m_cbAisToMQTT->SetValue(m_copy_AisToMQTT);
+    pref->m_cbAisToPSQL->SetValue(m_copy_AisToPSQL);
+    pref->m_textCtrlAISTransPeriod->SetValue(m_copy_AISTransPeriod);
+    // Target filter
+    pref->m_cbAISTargCargoOnly->SetValue(m_copy_AISTargCargoOnly);
+    pref->m_cbAISTargZeroInc->SetValue(m_copy_AISTargZeroInc);
+    // Own Ship
+    pref->m_textCtrlOwnMMSI->SetValue(m_copy_OwnMMSI);
+    pref->m_cbAISTransmitAIVDO->SetValue(m_copy_AISTransmitAIVDO);
+    // OFT
+    pref->m_textCtrlOFTMMSI1->SetValue(m_copy_OFTMMSI1);
+    pref->m_textCtrlOFTMMSI2->SetValue(m_copy_OFTMMSI2);
+    // load areas
+    pref->m_cbMonToFile->SetValue(m_copy_MonToFile);
+    pref->m_cbMonToMQTT->SetValue(m_copy_MonToMQTT);
+    pref->m_cbMonToPSQL->SetValue(m_copy_MonToPSQL);
+    pref->m_textCtrlMonTransPeriod->SetValue(m_copy_MonTransPeriod);
+    // file
+    pref->m_textCtrlAisFileName->SetValue(m_copy_AisFileName);
+    pref->m_textCtrlAISFilePath->SetValue(m_copy_AISFilePath);
+    // MQTT
+    pref->m_textCtrlMQTTBrokerIP->SetValue(m_copy_MQTTBrokerIP);
+    pref->m_textCtrlMQTTBrokerPort->SetValue(m_copy_MQTTBrokerPort);
+    pref->m_textCtrlMQTTclientID->SetValue(m_copy_MQTTclientID);
+    pref->m_textCtrlMQTTuser->SetValue(m_copy_MQTTuser);
+    pref->m_textCtrlMQTTuser->SetValue(m_copy_MQTTpassw);
+    pref->m_textCtrlMQTTPublishTopic->SetValue(m_copy_MQTTPublishTopic);
+    pref->m_textCtrlMQTTSubscribeTopic->SetValue(m_copy_MQTTSubscribeTopic);
+    // Postgresql
+    pref->m_textCtrlSQLip->SetValue(m_copy_SQLip);
+    pref->m_textCtrlSQLport->SetValue(m_copy_SQLport);
+    pref->m_textCtrlSQLuser->SetValue(m_copy_SQLuser);
+    pref->m_textCtrlSQLpassw->SetValue(m_copy_SQLpassw);
+    pref->m_textCtrlSQLDBName->SetValue(m_copy_SQLDBName);
 
-  pref->m_cbTransmitAis->SetValue(m_copy_use_ais);
-  pref->m_cbAisToFile->SetValue(m_copy_use_file);
-  pref->m_textCtrlMMSI->SetValue(m_copy_mmsi);
-  pref->m_cbNMEAToFile->SetValue(m_copy_use_nmea);
+ 
 
   if (pref->ShowModal() == wxID_OK) {
-    bool copy_ais = pref->m_cbTransmitAis->GetValue();
-    bool copy_file = pref->m_cbAisToFile->GetValue();
-    wxString copyMMSI = pref->m_textCtrlMMSI->GetValue();
-    bool copy_nmea = pref->m_cbNMEAToFile->GetValue();
+    // AIS Targets
+    bool copy_AisToFile = pref->m_cbAisToFile->GetValue();
+    bool copy_AisToMQTT = pref->m_cbAisToMQTT->GetValue();
+    bool copy_AisToPSQL = pref->m_cbAisToPSQL->GetValue();
+    wxString copy_AISTransPeriod = pref->m_textCtrlAISTransPeriod->GetValue();
+    // Target filter
+    bool copy_AISTargCargoOnly = pref->m_cbAISTargCargoOnly->GetValue();
+    bool copy_AISTargZeroInc = pref->m_cbAISTargZeroInc->GetValue();
+    // Own Ship
+    wxString copy_OwnMMSI = pref->m_textCtrlOwnMMSI->GetValue();
+    bool copy_AISTransmitAIVDO = pref->m_cbAISTransmitAIVDO->GetValue();
+    // OFT
+    wxString copy_OFTMMSI1 = pref->m_textCtrlOFTMMSI1->GetValue();
+    wxString copy_OFTMMSI2 = pref->m_textCtrlOFTMMSI2->GetValue();
+    // load areas
+    bool copy_MonToFile = pref->m_cbMonToFile->GetValue();
+    bool copy_MonToMQTT = pref->m_cbMonToMQTT->GetValue();
+    bool copy_MonToPSQL = pref->m_cbMonToPSQL->GetValue();
+    wxString copy_MonTransPeriod = pref->m_textCtrlMonTransPeriod->GetValue();
+    // file
+    wxString copy_AisFileName = pref->m_textCtrlAisFileName->GetValue();
+    wxString copy_AISFilePath = pref->m_textCtrlAISFilePath->GetValue();
+    // MQTT
+    wxString copy_MQTTBrokerIP = pref->m_textCtrlMQTTBrokerIP->GetValue();
+    wxString copy_MQTTBrokerPort = pref->m_textCtrlMQTTBrokerPort->GetValue();
+    wxString copy_MQTTclientID = pref->m_textCtrlMQTTclientID->GetValue();
+    wxString copy_MQTTuser = pref->m_textCtrlMQTTuser->GetValue();
+    wxString copy_MQTTpassw = pref->m_textCtrlMQTTpassw->GetValue();
+    wxString copy_MQTTPublishTopic = pref->m_textCtrlMQTTPublishTopic->GetValue();
+    wxString copy_MQTTSubscribeTopic = pref->m_textCtrlMQTTSubscribeTopic->GetValue();
+    // Postgresql
+    wxString copy_SQLip = pref->m_textCtrlSQLip->GetValue();
+    wxString copy_SQLport = pref->m_textCtrlSQLport->GetValue();
+    wxString copy_SQLuser = pref->m_textCtrlSQLuser->GetValue();
+    wxString copy_SQLpassw = pref->m_textCtrlSQLpassw->GetValue();
+    wxString copy_SQLDBName = pref->m_textCtrlSQLDBName->GetValue();
 
 
-    if (m_copy_use_ais != copy_ais || m_copy_use_file != copy_file ||
-        m_copy_mmsi != copyMMSI) {
-      m_copy_use_ais = copy_ais;
-      m_copy_use_file = copy_file;
-      m_copy_mmsi = copyMMSI;
+    // AIS Targets
+    if (m_copy_AisToFile != copy_AisToFile) {
+      m_copy_AisToFile = copy_AisToFile;
     }
-
-    if (m_copy_use_nmea != copy_nmea) {
-      m_copy_use_nmea = copy_nmea;
+    if (m_copy_AisToMQTT != copy_AisToMQTT) {
+      m_copy_AisToMQTT = copy_AisToMQTT;
     }
-
+    if (m_copy_AisToPSQL != copy_AisToPSQL) {
+      m_copy_AisToPSQL = copy_AisToPSQL;
+    }
+    if (m_copy_AISTransPeriod != copy_AISTransPeriod) {
+      m_copy_AISTransPeriod = copy_AISTransPeriod;
+    }
+    // Target filter
+    if (m_copy_AISTargCargoOnly != copy_AISTargCargoOnly) {
+      m_copy_AISTargCargoOnly = copy_AISTargCargoOnly;
+    }
+    if (m_copy_AISTargZeroInc != copy_AISTargZeroInc) {
+      m_copy_AISTargZeroInc = copy_AISTargZeroInc;
+    }
+    // Own Ship
+    if (m_copy_OwnMMSI != copy_OwnMMSI) {
+      m_copy_OwnMMSI = copy_OwnMMSI;
+    }
+    if (m_copy_AISTransmitAIVDO != copy_AISTransmitAIVDO) {
+      m_copy_AISTransmitAIVDO = copy_AISTransmitAIVDO;
+    }
+    // OFT
+    if (m_copy_OFTMMSI1 != copy_OFTMMSI1) {
+      m_copy_OFTMMSI1 = copy_OFTMMSI1;
+    }
+    if (m_copy_OFTMMSI2 != copy_OFTMMSI2) {
+      m_copy_OFTMMSI2 = copy_OFTMMSI2;
+    }
+    // load areas
+    if (m_copy_MonToFile != copy_MonToFile) {
+      m_copy_MonToFile = copy_MonToFile;
+    }
+    if (m_copy_MonToMQTT != copy_MonToMQTT) {
+      m_copy_MonToMQTT = copy_MonToMQTT;
+    }
+    if (m_copy_MonToPSQL != copy_MonToPSQL) {
+      m_copy_MonToPSQL = copy_MonToPSQL;
+    }
+    if (m_copy_MonTransPeriod != copy_MonTransPeriod) {
+      m_copy_MonTransPeriod = copy_MonTransPeriod;
+    }
+    // file
+    if (m_copy_AisFileName != copy_AisFileName) {
+      m_copy_AisFileName = copy_AisFileName;
+    }
+    if (m_copy_AISFilePath != copy_AISFilePath) {
+      m_copy_AISFilePath = copy_AISFilePath;
+    }
+    // MQTT
+    if (m_copy_MQTTBrokerIP != copy_MQTTBrokerIP) {
+      m_copy_MQTTBrokerIP = copy_MQTTBrokerIP;
+    }
+    if (m_copy_MQTTBrokerPort != copy_MQTTBrokerPort) {
+      m_copy_MQTTBrokerPort = copy_MQTTBrokerPort;
+    }
+    if (m_copy_MQTTclientID != copy_MQTTclientID) {
+      m_copy_MQTTclientID = copy_MQTTclientID;
+    }
+    if (m_copy_MQTTuser != copy_MQTTuser) {
+      m_copy_MQTTuser = copy_MQTTuser;
+    }
+    if (m_copy_MQTTpassw != copy_MQTTpassw) {
+      m_copy_MQTTpassw = copy_MQTTpassw;
+    }
+    if (m_copy_MQTTPublishTopic != copy_MQTTPublishTopic) {
+      m_copy_MQTTPublishTopic = copy_MQTTPublishTopic;
+    }
+    if (m_copy_MQTTSubscribeTopic != copy_MQTTSubscribeTopic) {
+      m_copy_MQTTSubscribeTopic = copy_MQTTSubscribeTopic;
+    }
+    // Postgresql
+    if (m_copy_SQLip != copy_SQLip) {
+      m_copy_SQLip = copy_SQLip;
+    }
+    if (m_copy_SQLport != copy_SQLport) {
+      m_copy_SQLport = copy_SQLport;
+    }
+    if (m_copy_SQLuser != copy_SQLuser) {
+      m_copy_SQLuser = copy_SQLuser;
+    }
+    if (m_copy_SQLpassw != copy_SQLpassw) {
+      m_copy_SQLpassw = copy_SQLpassw;
+    }
+    if (m_copy_SQLDBName != copy_SQLDBName) {
+      m_copy_SQLDBName = copy_SQLDBName;
+    }
+    
     if (m_dialog) {
-      m_dialog->m_bUseAis = m_copy_use_ais;
-      m_dialog->m_bUseFile = m_copy_use_file;
-      m_dialog->m_tMMSI = m_copy_mmsi;
-      m_dialog->m_bUseNMEA = m_copy_use_nmea;
+      // AIS Targets
+      m_dialog->m_bAisToFile = m_copy_AisToFile;
+      m_dialog->m_bAisToMQTT = m_copy_AisToMQTT;
+      m_dialog->m_bAisToPSQL = m_copy_AisToPSQL;
+      m_dialog->m_tAISTransPeriod = m_copy_AISTransPeriod;
+      // Target filter
+      m_dialog->m_bAISTargCargoOnly = m_copy_AISTargCargoOnly;
+      m_dialog->m_bAISTargZeroInc = m_copy_AISTargZeroInc;
+      // Own Ship
+      m_dialog->m_tOwnMMSI = m_copy_OwnMMSI;
+      m_dialog->m_bAISTransmitAIVDO = m_copy_AISTransmitAIVDO;
+      // OFT
+      m_dialog->m_tOFTMMSI1 = m_copy_OFTMMSI1;
+      m_dialog->m_tOFTMMSI2 = m_copy_OFTMMSI2;
+      // load areas
+      m_dialog->m_bMonToFile = m_copy_MonToFile;
+      m_dialog->m_bMonToMQTT = m_copy_MonToMQTT;
+      m_dialog->m_bMonToPSQL = m_copy_MonToPSQL;
+      m_dialog->m_tMonTransPeriod = m_copy_MonTransPeriod;
+      // file
+      m_dialog->m_tAisFileName = m_copy_AisFileName;
+      m_dialog->m_tAISFilePath = m_copy_AISFilePath;
+      // MQTT
+      m_dialog->m_tMQTTBrokerIP = m_copy_MQTTBrokerIP;
+      m_dialog->m_tMQTTBrokerPort = m_copy_MQTTBrokerPort;
+      m_dialog->m_tMQTTclientID = m_copy_MQTTclientID;
+      m_dialog->m_tMQTTuser = m_copy_MQTTuser;
+      m_dialog->m_tMQTTpassw = m_copy_MQTTpassw;
+      m_dialog->m_tMQTTPublishTopic = m_copy_MQTTPublishTopic;
+      m_dialog->m_tMQTTSubscribeTopic = m_copy_MQTTSubscribeTopic;
+      // Postgresql
+      m_dialog->m_tSQLip = m_copy_SQLip;
+      m_dialog->m_tSQLport = m_copy_SQLport;
+      m_dialog->m_tSQLuser = m_copy_SQLuser;
+      m_dialog->m_tSQLpassw = m_copy_SQLpassw;
+      m_dialog->m_tSQLDBName = m_copy_SQLDBName;
     }
 
     SaveConfig();
@@ -279,10 +479,11 @@ void OFTinfoPi::ShowPreferencesDialog(wxWindow* parent) {
 
   delete pref;
   pref = nullptr;
+  
 }
 
 void OFTinfoPi::OnToolbarToolCallback(int id) {
-  if (!m_dialog) {
+   if (!m_dialog) {
     m_dialog = new Dlg(m_parent_window);
     m_dialog->plugin = this;
     m_dialog->m_timer = new wxTimer(m_dialog);
@@ -326,7 +527,7 @@ void OFTinfoPi::OnToolbarToolCallback(int id) {
 }
 
 bool OFTinfoPi::LoadConfig() {
-  auto* conf = (wxFileConfig*)m_config;
+   auto* conf = (wxFileConfig*)m_config;
 
   if (conf) {
     if (conf->HasGroup(_T("/Settings/OFTinfo_pi"))) {
@@ -334,11 +535,44 @@ bool OFTinfoPi::LoadConfig() {
 
       conf->SetPath("/Settings/OFTinfo_pi");
       conf->Read("ShowOFTinfoIcon", &m_show_oftinfo_icon, true);
-      conf->Read("oftinfoUseAis", &m_copy_use_ais, false);
-      conf->Read("oftinfoUseNMEA", &m_copy_use_nmea, false);
-      conf->Read("oftinfoUseFile", &m_copy_use_file, false);
-      m_copy_mmsi = conf->Read("oftinfoMMSI", "123456789");
 
+      // AIS Targets
+      conf->Read("oftinfoAisToFile", &m_copy_AisToFile, true);
+      conf->Read("oftinfoAisToMQTT", &m_copy_AisToMQTT, false);
+      conf->Read("oftinfoAisToPSQL", &m_copy_AisToPSQL, false);
+      m_copy_AISTransPeriod = conf->Read("oftinfoAISTransPeriod", "20");
+      // Target filter
+      conf->Read("oftinfoAISTargCargoOnly", &m_copy_AISTargCargoOnly, true);
+      conf->Read("oftinfoAisToAISTargZeroInc", &m_copy_AISTargZeroInc, false);
+      // Own Ship
+      m_copy_OwnMMSI = conf->Read("oftinfoOwnMMSI", "123456789");
+      conf->Read("oftinfoAISTransmitAIVDO", &m_copy_AISTransmitAIVDO, true);
+      // OFT
+      m_copy_OFTMMSI1 = conf->Read("oftinfoOFTMMSI1", "123456789");
+      m_copy_OFTMMSI2 = conf->Read("oftinfoOFTMMSI2", "123456789");
+      // load areas
+      conf->Read("oftinfoMonToFile", &m_copy_MonToFile, true);
+      conf->Read("oftinfoMonToMQTT", &m_copy_MonToMQTT, false);
+      conf->Read("oftinfoMonToPSQL", &m_copy_MonToPSQL, false);
+      m_copy_MonTransPeriod = conf->Read("oftinfoMonTransPeriod", "20");
+      // file
+      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets");
+      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts");
+      // MQTT
+      m_copy_MQTTBrokerIP = conf->Read("oftinfoMQTTBrokerIP", "127.0.0.1");
+      m_copy_MQTTBrokerPort = conf->Read("oftinfoMQTTBrokerPort", "1883");
+      m_copy_MQTTclientID = conf->Read("oftinfoMQTTclientID", "OFTinfoMain");
+      m_copy_MQTTuser = conf->Read("oftinfoMQTTuser", "user");
+      m_copy_MQTTpassw = conf->Read("oftinfoMQTTpassw", "password");
+      m_copy_MQTTPublishTopic = conf->Read("oftinfoMQTTPublishTopic", "Cargo/OCPN");
+      m_copy_MQTTSubscribeTopic = conf->Read("oftinfoMQTTSubscribeTopic", "Cargo/OCPN");
+      // Postgresql
+      m_copy_SQLip = conf->Read("oftinfoSQLip", "127.0.0.1");
+      m_copy_SQLport = conf->Read("oftinfoSQLport", "5432");
+      m_copy_SQLuser = conf->Read("oftinfoSQLuser", "user");
+      m_copy_SQLpassw = conf->Read("oftinfoSQLpassw", "password");
+      m_copy_SQLDBName = conf->Read("oftinfoSQLDBName", "cargo");
+      
       m_hr_dialog_x = conf->Read("DialogPosX", 40L);
       m_hr_dialog_y = conf->Read("DialogPosY", 140L);
       m_hr_dialog_sx = conf->Read("DialogSizeX", 330L);
@@ -351,10 +585,45 @@ bool OFTinfoPi::LoadConfig() {
     } else {
       conf->SetPath("/PlugIns/OFTinfo_pi");
       conf->Read("ShowOFTinfoIcon", &m_show_oftinfo_icon, true);
-      conf->Read("oftinfoUseAis", &m_copy_use_ais, false);
-      conf->Read("oftinfoUseNMEA", &m_copy_use_nmea, false);
-      conf->Read("oftinfoUseFile", &m_copy_use_file, false);
-      m_copy_mmsi = conf->Read("oftinfoMMSI", "123456789");
+
+      // AIS Targets
+      conf->Read("oftinfoAisToFile", &m_copy_AisToFile, true);
+      conf->Read("oftinfoAisToMQTT", &m_copy_AisToMQTT, false);
+      conf->Read("oftinfoAisToPSQL", &m_copy_AisToPSQL, false);
+      m_copy_AISTransPeriod = conf->Read("oftinfoAISTransPeriod", "20");
+      // Target filter
+      conf->Read("oftinfoAISTargCargoOnly", &m_copy_AISTargCargoOnly, true);
+      conf->Read("oftinfoAisToAISTargZeroInc", &m_copy_AISTargZeroInc, false);
+      // Own Ship
+      m_copy_OwnMMSI = conf->Read("oftinfoOwnMMSI", "123456789");
+      conf->Read("oftinfoAISTransmitAIVDO", &m_copy_AISTransmitAIVDO, true);
+      // OFT
+      m_copy_OFTMMSI1 = conf->Read("oftinfoOFTMMSI1", "123456789");
+      m_copy_OFTMMSI2 = conf->Read("oftinfoOFTMMSI2", "123456789");
+      // load areas
+      conf->Read("oftinfoMonToFile", &m_copy_MonToFile, true);
+      conf->Read("oftinfoMonToMQTT", &m_copy_MonToMQTT, false);
+      conf->Read("oftinfoMonToPSQL", &m_copy_MonToPSQL, false);
+      m_copy_MonTransPeriod = conf->Read("oftinfoMonTransPeriod", "20");
+      // file
+      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets");
+      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts");
+      // MQTT
+      m_copy_MQTTBrokerIP = conf->Read("oftinfoMQTTBrokerIP", "127.0.0.1");
+      m_copy_MQTTBrokerPort = conf->Read("oftinfoMQTTBrokerPort", "1883");
+      m_copy_MQTTclientID = conf->Read("oftinfoMQTTclientID", "OFTinfoMain");
+      m_copy_MQTTuser = conf->Read("oftinfoMQTTuser", "user");
+      m_copy_MQTTpassw = conf->Read("oftinfoMQTTpassw", "password");
+      m_copy_MQTTPublishTopic =
+          conf->Read("oftinfoMQTTPublishTopic", "Cargo/OCPN");
+      m_copy_MQTTSubscribeTopic =
+          conf->Read("oftinfoMQTTSubscribeTopic", "Cargo/OCPN");
+      // Postgresql
+      m_copy_SQLip = conf->Read("oftinfoSQLip", "127.0.0.1");
+      m_copy_SQLport = conf->Read("oftinfoSQLport", "5432");
+      m_copy_SQLuser = conf->Read("oftinfoSQLuser", "user");
+      m_copy_SQLpassw = conf->Read("oftinfoSQLpassw", "password");
+      m_copy_SQLDBName = conf->Read("oftinfoSQLDBName", "cargo");
 
       m_hr_dialog_x = conf->Read("DialogPosX", 40L);
       m_hr_dialog_y = conf->Read("DialogPosY", 140L);
@@ -372,38 +641,66 @@ bool OFTinfoPi::LoadConfig() {
 
     return true;
   } else
+    
     return false;
 }
 
 bool OFTinfoPi::SaveConfig() {
-  auto* conf = (wxFileConfig*)m_config;
-
-  if (conf) {
-    bool is_digits = m_copy_mmsi.IsNumber();
-    if (m_copy_mmsi.length() < 9 || !is_digits) {
-      wxMessageBox(_("MMSI must be 9 digits.\nEdit using Preferences"));
-      return false;
-    }
+   auto* conf = (wxFileConfig*)m_config;
+  // FIXME ADD check all text data!!! 
+ 
 
     conf->SetPath("/PlugIns/OFTinfo_pi");
     conf->Write("ShowOFTinfoIcon", m_show_oftinfo_icon);
-    conf->Write("oftinfoUseAis", m_copy_use_ais);
-    conf->Write("oftinfoUseNMEA", m_copy_use_nmea);
-    conf->Write("oftinfoUseFile", m_copy_use_file);
-    conf->Write("oftinfoMMSI", m_copy_mmsi);
+
+    // AIS Targets
+    conf->Write("oftinfoAisToFile", m_copy_AisToFile);
+    conf->Write("oftinfoAisToMQTT", m_copy_AisToMQTT);
+    conf->Write("oftinfoAisToPSQL",m_copy_AisToPSQL);
+    conf->Write("oftinfoAISTransPeriod", m_copy_AISTransPeriod);
+    // Target filter
+    conf->Write("oftinfoAISTargCargoOnly", m_copy_AISTargCargoOnly);
+    conf->Write("oftinfoAisToAISTargZeroInc", m_copy_AISTargZeroInc);
+    // Own Ship
+    conf->Write("oftinfoOwnMMSI", m_copy_OwnMMSI);
+    conf->Write("oftinfoAISTransmitAIVDO", m_copy_AISTransmitAIVDO);
+    // OFT
+    conf->Write("oftinfoOFTMMSI1", m_copy_OFTMMSI1);
+    conf->Write("oftinfoOFTMMSI2", m_copy_OFTMMSI2);
+    // load areas
+    conf->Write("oftinfoMonToFile", m_copy_MonToFile);
+    conf->Write("oftinfoMonToMQTT", m_copy_MonToMQTT);
+    conf->Write("oftinfoMonToPSQL", m_copy_MonToPSQL);
+    conf->Write("oftinfoMonTransPeriod", m_copy_MonTransPeriod);
+    // file
+    conf->Write("oftinfoAisFileName", m_copy_AisFileName);
+    conf->Write("oftinfoAISFilePath", m_copy_AISFilePath);
+    // MQTT
+    conf->Write("oftinfoMQTTBrokerIP", m_copy_MQTTBrokerIP);
+    conf->Write("oftinfoMQTTBrokerPort", m_copy_MQTTBrokerPort);
+    conf->Write("oftinfoMQTTclientID", m_copy_MQTTclientID);
+    conf->Write("oftinfoMQTTuser", m_copy_MQTTuser);
+    conf->Write("oftinfoMQTTpassw", m_copy_MQTTpassw);
+    conf->Write("oftinfoMQTTPublishTopic", m_copy_MQTTPublishTopic);
+    conf->Write("oftinfoMQTTSubscribeTopic", m_copy_MQTTSubscribeTopic);
+    // Postgresql
+    conf->Write("oftinfoSQLip", m_copy_SQLip);
+    conf->Write("oftinfoSQLport", m_copy_SQLport);
+    conf->Write("oftinfoSQLuser", m_copy_SQLuser);
+    conf->Write("oftinfoSQLpassw", m_copy_SQLpassw);
+    conf->Write("oftinfoSQLDBName", m_copy_SQLDBName);
 
     conf->Write("DialogPosX", m_hr_dialog_x);
     conf->Write("DialogPosY", m_hr_dialog_y);
     conf->Write("DialogSizeX", m_hr_dialog_sx);
     conf->Write("DialogSizeY", m_hr_dialog_sy);
-
+    
     return true;
-  } else
-    return false;
+ 
 }
 
 void OFTinfoPi::OnOFTinfoDialogClose() {
-  m_show_oftinfo = false;
+   m_show_oftinfo = false;
   SetToolbarItemState(m_leftclick_tool_id, m_show_oftinfo);
   m_dialog->Hide();
   SaveConfig();
@@ -411,133 +708,6 @@ void OFTinfoPi::OnOFTinfoDialogClose() {
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
-void OFTinfoPi::OnContextMenuItemCallback(int id) {
-  if (!m_dialog) return;
 
-  if (id == m_position_menu_id) {
-    m_cursor_lat = GetCursorLat();
-    m_cursor_lon = GetCursorLon();
 
-    m_dialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
-  }
-}
 
-void OFTinfoPi::SetCursorLatLon(double lat, double lon) {
-  m_cursor_lat = lat;
-  m_cursor_lon = lon;
-}
-
-void OFTinfoPi::SetPluginMessage(wxString& message_id,
-                                    wxString& message_body) {
-  if (message_id == "GRIB_TIMELINE") {
-    Json::CharReaderBuilder builder;
-    Json::CharReader* reader = builder.newCharReader();
-
-    Json::Value value;
-    string errors;
-
-    bool parsingSuccessful = reader->parse(
-        message_body.c_str(), message_body.c_str() + message_body.size(),
-        &value, &errors);
-    delete reader;
-
-    if (!parsingSuccessful) {
-      wxLogMessage("Grib_TimeLine error");
-      return;
-    }
-
-    // int day = value["Day"].asInt();
-
-    wxDateTime time;
-    time.Set(value["Day"].asInt(), (wxDateTime::Month)value["Month"].asInt(),
-             value["Year"].asInt(), value["Hour"].asInt(),
-             value["Minute"].asInt(), value["Second"].asInt());
-
-    if (m_dialog) {
-      m_dialog->m_GribTimelineTime = time.ToUTC();
-      // m_pDialog->m_textCtrl1->SetValue(dt);
-    }
-  }
-  if (message_id == "GRIB_TIMELINE_RECORD") {
-    Json::CharReaderBuilder builder;
-    Json::CharReader* reader = builder.newCharReader();
-
-    Json::Value value;
-    string errors;
-
-    bool parsingSuccessful = reader->parse(
-        message_body.c_str(), message_body.c_str() + message_body.size(),
-        &value, &errors);
-    delete reader;
-
-    if (!parsingSuccessful) {
-      wxLogMessage("Grib_TimeLine_Record error");
-      return;
-    }
-
-    static bool shown_warnings;
-    if (!shown_warnings) {
-      shown_warnings = true;
-
-      int grib_version_major = value["GribVersionMajor"].asInt();
-      int grib_version_minor = value["GribVersionMinor"].asInt();
-
-      int grib_version = 1000 * grib_version_major + grib_version_minor;
-      int grib_min = 1000 * GRIB_MIN_MAJOR + GRIB_MIN_MINOR;
-      int grib_max = 1000 * GRIB_MAX_MAJOR + GRIB_MAX_MINOR;
-
-      if (grib_version < grib_min || grib_version > grib_max) {
-        wxMessageDialog mdlg(
-            m_parent_window,
-            _("Grib plugin version not supported.") + "\n\n" +
-                wxString::Format(_("Use versions %d.%d to %d.%d"),
-                                 GRIB_MIN_MAJOR, GRIB_MIN_MINOR, GRIB_MAX_MAJOR,
-                                 GRIB_MAX_MINOR),
-            _("Weather Routing"), wxOK | wxICON_WARNING);
-        mdlg.ShowModal();
-      }
-    }
-
-    wxString sptr = value["TimelineSetPtr"].asString();
-
-    wxCharBuffer bptr = sptr.To8BitData();
-    const char* ptr = bptr.data();
-
-    GribRecordSet* gptr;
-    sscanf(ptr, "%p", &gptr);
-
-    double dir, spd;
-
-    m_is_grib_valid = GribCurrent(gptr, m_grib_lat, m_grib_lon, dir, spd);
-
-    m_tr_spd = spd;
-    m_tr_dir = dir;
-  }
-}
-
-[[maybe_unused]] bool OFTinfoPi::GribWind(GribRecordSet* grib, double lat,
-                                             double lon, double& wg,
-                                             double& vwg) {
-  if (!grib) return false;
-
-  if (!GribRecord::getInterpolatedValues(
-          vwg, wg, grib->m_GribRecordPtrArray[Idx_WIND_VX],
-          grib->m_GribRecordPtrArray[Idx_WIND_VY], lon, lat))
-    return false;
-
-  vwg *= 3.6 / 1.852;  // knots
-
-#if 0
-// test
-	VWG = 0.;
-	WG = 0.;
-#endif
-
-  return true;
-}
-
-void OFTinfoPi::SetNMEASentence(wxString& sentence) {
-  if (m_dialog) {
-    m_dialog->SetNMEAMessage(sentence);
-  }
-}

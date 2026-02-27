@@ -56,11 +56,6 @@ set(SRC
     src/oftinfo_gui.cpp
     src/oftinfo_gui_impl.cpp
     src/oftinfo_gui_impl.h
-    src/AisMaker.h
-    src/AisMaker.cpp
-    src/GribRecord.cpp
-    src/GribRecordSet.h
-    src/GribRecord.h
     src/plug_utils.cpp
     src/plug_utils.h
 )
