@@ -82,46 +82,87 @@ public:
       const wxSize& size = wxDefaultSize, long style = OFTINFO_DLG_STYLE);
   OFTinfoPi* plugin;
 
-  wxTimer* m_timer;
+  // base dialog
+  // Unload Area
+  bool m_bUnloadAreaEnable;
+  bool m_bUnloadAreaVisible;
+  bool m_bOGVDataVisible;
+  bool m_bUnloadAreaSTBD;
+  bool m_bUnloadAreaPORT;
+  wxString m_tUnloadAreaAftTrig;
+  wxString m_tUnloadAreaBowTrig;
+  wxString m_tUnloadAreaHist;
+  wxString m_tUnloadAreaDistance;
+  wxString m_tUnloadAreaLostTime;
+  wxColour m_cUnloadAreaColour;
+  int m_iUnloadAreaColour;
+  // OGV
+  wxString m_tOGVMMSI;
+  wxString m_tOGVName;
+  wxString m_tOGVLoadTime;
+  wxString m_tOGVMoorTime;
+  wxString m_tOGVUnMoorTime;
+  // load Areas
+  wxString m_tLoadAreaLostTime;
+  wxString m_tLoadAreaHist;
+  wxString m_tLoadAreaDistance;
+  // Crane 1
+  bool m_bCrane1AreaEnable;
+  bool m_bCrane1AreaVisible;
+  bool m_bCrane1BargeDataVisible;
+  wxString m_tCrane1AreaAftTrig;
+  wxString m_tCrane1AreaBowTrig;
+  wxColour m_cCrane1AreaColour;
+  int m_iCrane1AreaColour;
+  // Crane 1 barge
+  wxString m_tCrane1MMSI;
+  wxString m_tCrane1Name;
+  wxString m_tCrane1LoadTime;
+  wxString m_tCrane1MoorTime;
+  wxString m_tCrane1UnMoorTime;
+  // Crane 2
+  bool m_bCrane2AreaEnable;
+  bool m_bCrane2AreaVisible;
+  bool m_bCrane2BargeDataVisible;
+  wxString m_tCrane2AreaAftTrig;
+  wxString m_tCrane2AreaBowTrig;
+  wxColour m_cCrane2AreaColour;
+  int m_iCrane2AreaColour;
+  // Crane 2 barge
+  wxString m_tCrane2MMSI;
+  wxString m_tCrane2Name;
+  wxString m_tCrane2LoadTime;
+  wxString m_tCrane2MoorTime;
+  wxString m_tCrane2UnMoorTime;
+  // Crane 3
+  bool m_bCrane3AreaEnable;
+  bool m_bCrane3AreaVisible;
+  bool m_bCrane3BargeDataVisible;
+  wxString m_tCrane3AreaAftTrig;
+  wxString m_tCrane3AreaBowTrig;
+  wxColour m_cCrane3AreaColour;
+  int m_iCrane3AreaColour;
+  // Crane 3 barge
+  wxString m_tCrane3MMSI;
+  wxString m_tCrane3Name;
+  wxString m_tCrane3LoadTime;
+  wxString m_tCrane3MoorTime;
+  wxString m_tCrane3UnMoorTime;
+  // Crane 4
+  bool m_bCrane4AreaEnable;
+  bool m_bCrane4AreaVisible;
+  bool m_bCrane4BargeDataVisible;
+  wxString m_tCrane4AreaAftTrig;
+  wxString m_tCrane4AreaBowTrig;
+  wxColour m_cCrane4AreaColour;
+  int m_iCrane4AreaColour;
+  // Crane 4 barge
+  wxString m_tCrane4MMSI;
+  wxString m_tCrane4Name;
+  wxString m_tCrane4LoadTime;
+  wxString m_tCrane4MoorTime;
+  wxString m_tCrane4UnMoorTime;
 
-  // AIS Targets
-  bool m_bAisToFile;
-  bool m_bAisToMQTT;
-  bool m_bAisToPSQL;
-  wxString m_tAISTransPeriod;
-  // Target filter
-  bool m_bAISTargCargoOnly;
-  bool m_bAISTargZeroInc;
-  // Own Ship
-  wxString m_tOwnMMSI;
-  bool m_bAISTransmitAIVDO;
-  // OFT
-  wxString m_tOFTMMSI1;
-  wxString m_tOFTMMSI2;
-  // load areas
-  bool m_bMonToFile;
-  bool m_bMonToMQTT;
-  bool m_bMonToPSQL;
-  wxString m_tMonTransPeriod;
-  // file
-  wxString m_tAisFileName;
-  wxString m_tAISFilePath;
-  // MQTT
-  wxString m_tMQTTBrokerIP;
-  wxString m_tMQTTBrokerPort;
-  wxString m_tMQTTclientID;
-  wxString m_tMQTTuser;
-  wxString m_tMQTTpassw;
-  wxString m_tMQTTPublishTopic;
-  wxString m_tMQTTSubscribeTopic;
-  // Postgresql
-  wxString m_tSQLip;
-  wxString m_tSQLport;
-  wxString m_tSQLuser;
-  wxString m_tSQLpassw;
-  wxString m_tSQLDBName;
-
-  wxDateTime dt;
   
 };
 

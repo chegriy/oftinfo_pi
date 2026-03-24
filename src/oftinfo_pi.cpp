@@ -64,10 +64,11 @@ extern "C" DECL_EXP void destroy_pi(opencpn_plugin* p) { delete p; }
 
 OFTinfoPi::OFTinfoPi(void* ppimgr)
     : opencpn_plugin_118(ppimgr),
+      wxTimer(this),
       m_hr_dialog_x(0),
       m_hr_dialog_y(8),
-      m_cursor_lat(0),
-      m_cursor_lon(0),
+     // m_cursor_lat(0),
+     // m_cursor_lon(0),
       m_position_menu_id(-1),
       m_gui_scale_factor(1),
       plugin(nullptr),
@@ -82,7 +83,8 @@ OFTinfoPi::OFTinfoPi(void* ppimgr)
       m_display_height(0),
       m_leftclick_tool_id(-1),
       m_show_oftinfo_icon(false)
-    //may be need add preverence variamle?? gr
+      //m_AIS_Array(*GetAISTargetArray())
+     //may be need add preference variable?? gr!!!
 {
   // Create the PlugIn icons
   initialize_images();
@@ -143,12 +145,94 @@ OFTinfoPi::~OFTinfoPi() {
       pConf->Write("oftinfoSQLuser", m_copy_SQLuser);
       pConf->Write("oftinfoSQLpassw", m_copy_SQLpassw);
       pConf->Write("oftinfoSQLDBName", m_copy_SQLDBName);
+
+      // base dialog
+      // Unload Area
+      pConf->Write("oftinfoUnloadAreaEnable", m_copy_UnloadAreaEnable);
+      pConf->Write("oftinfoUnloadAreaVisible", m_copy_UnloadAreaVisible);
+      pConf->Write("oftinfoOGVDataVisible", m_copy_OGVDataVisible);
+      pConf->Write("oftinfoUnloadAreaSTBD", m_copy_UnloadAreaSTBD);
+      pConf->Write("oftinfoUnloadAreaPORT", m_copy_UnloadAreaPORT);
+      pConf->Write("oftinfoUnloadAreaAftTrig", m_copy_UnloadAreaAftTrig);
+      pConf->Write("oftinfoUnloadAreaBowTrig", m_copy_UnloadAreaBowTrig);
+      pConf->Write("oftinfoUnloadAreaHist", m_copy_UnloadAreaHist);
+      pConf->Write("oftinfoUnloadAreaDistance", m_copy_UnloadAreaDistance);
+      pConf->Write("oftinfoUnloadAreaLostTime", m_copy_UnloadAreaLostTime);
+      m_copy_IntUnloadAreaColour = m_copy_UnloadAreaColour.GetRGB();  // red, green, blue
+      pConf->Write("oftinfoUnloadAreaColour", m_copy_IntUnloadAreaColour);
+      // OGV
+      pConf->Write("oftinfoOGVMMSI", m_copy_OGVMMSI);
+      pConf->Write("oftinfoOGVName", m_copy_OGVName);
+      pConf->Write("oftinfoOGVLoadTime", m_copy_OGVLoadTime);
+      pConf->Write("oftinfoOGVMoorTime", m_copy_OGVMoorTime);
+      pConf->Write("oftinfoOGVUnMoorTime", m_copy_OGVUnMoorTime);
+      // load Areas
+      pConf->Write("oftinfoLoadAreaLostTime", m_copy_LoadAreaLostTime);
+      pConf->Write("oftinfoLoadAreaHist", m_copy_LoadAreaHist);
+      pConf->Write("oftinfoLoadAreaDistance", m_copy_LoadAreaDistance);
+      // Crane 1
+      pConf->Write("oftinfoCrane1AreaEnable", m_copy_Crane1AreaEnable);
+      pConf->Write("oftinfoCrane1AreaVisible", m_copy_Crane1AreaVisible);
+      pConf->Write("oftinfoCrane1BargeDataVisible", m_copy_Crane1BargeDataVisible);
+      pConf->Write("oftinfoCrane1AreaAftTrig", m_copy_Crane1AreaAftTrig);
+      pConf->Write("oftinfoCrane1AreaBowTrig", m_copy_Crane1AreaBowTrig);
+      m_copy_IntCrane1AreaColour = m_copy_Crane1AreaColour.GetRGB();  // red, green, blue
+      pConf->Write("oftinfoCrane1AreaColour", m_copy_IntCrane1AreaColour);
+      // Crane 1 barge
+      pConf->Write("oftinfoCrane1MMSI", m_copy_Crane1MMSI);
+      pConf->Write("oftinfoCrane1Name", m_copy_Crane1Name);
+      pConf->Write("oftinfoCrane1LoadTime", m_copy_Crane1LoadTime);
+      pConf->Write("oftinfoCrane1MoorTime", m_copy_Crane1MoorTime);
+      pConf->Write("oftinfoCrane1UnMoorTime", m_copy_Crane1UnMoorTime);
+      // Crane 2
+      pConf->Write("oftinfoCrane2AreaEnable", m_copy_Crane2AreaEnable);
+      pConf->Write("oftinfoCrane2AreaVisible", m_copy_Crane2AreaVisible);
+      pConf->Write("oftinfoCrane2BargeDataVisible", m_copy_Crane2BargeDataVisible);
+      pConf->Write("oftinfoCrane2AreaAftTrig", m_copy_Crane2AreaAftTrig);
+      pConf->Write("oftinfoCrane2AreaBowTrig", m_copy_Crane2AreaBowTrig);
+      m_copy_IntCrane2AreaColour = m_copy_Crane2AreaColour.GetRGB();  // red, green, blue
+      pConf->Write("oftinfoCrane2AreaColour", m_copy_IntCrane2AreaColour);
+      // Crane 2 barge
+      pConf->Write("oftinfoCrane2MMSI", m_copy_Crane2MMSI);
+      pConf->Write("oftinfoCrane2Name", m_copy_Crane2Name);
+      pConf->Write("oftinfoCrane2LoadTime", m_copy_Crane2LoadTime);
+      pConf->Write("oftinfoCrane2MoorTime", m_copy_Crane2MoorTime);
+      pConf->Write("oftinfoCrane2UnMoorTime", m_copy_Crane2UnMoorTime);
+      // Crane 3
+      pConf->Write("oftinfoCrane3AreaEnable", m_copy_Crane3AreaEnable);
+      pConf->Write("oftinfoCrane3AreaVisible", m_copy_Crane3AreaVisible);
+      pConf->Write("oftinfoCrane3BargeDataVisible", m_copy_Crane3BargeDataVisible);
+      pConf->Write("oftinfoCrane3AreaAftTrig", m_copy_Crane3AreaAftTrig);
+      pConf->Write("oftinfoCrane3AreaBowTrig", m_copy_Crane3AreaBowTrig);
+      m_copy_IntCrane3AreaColour = m_copy_Crane3AreaColour.GetRGB();  // red, green, blue
+      pConf->Write("oftinfoCrane3AreaColour", m_copy_IntCrane3AreaColour);
+      // Crane 3 barge
+      pConf->Write("oftinfoCrane3MMSI", m_copy_Crane3MMSI);
+      pConf->Write("oftinfoCrane3Name", m_copy_Crane3Name);
+      pConf->Write("oftinfoCrane3LoadTime", m_copy_Crane3LoadTime);
+      pConf->Write("oftinfoCrane3MoorTime", m_copy_Crane3MoorTime);
+      pConf->Write("oftinfoCrane3UnMoorTime", m_copy_Crane3UnMoorTime);
+      // Crane 4
+      pConf->Write("oftinfoCrane4AreaEnable", m_copy_Crane4AreaEnable);
+      pConf->Write("oftinfoCrane4AreaVisible", m_copy_Crane4AreaVisible);
+      pConf->Write("oftinfoCrane4BargeDataVisible", m_copy_Crane4BargeDataVisible);
+      pConf->Write("oftinfoCrane4AreaAftTrig", m_copy_Crane4AreaAftTrig);
+      pConf->Write("oftinfoCrane4AreaBowTrig", m_copy_Crane4AreaBowTrig);
+      m_copy_IntCrane4AreaColour = m_copy_Crane4AreaColour.GetRGB();  // red, green, blue
+      pConf->Write("oftinfoCrane4AreaColour", m_copy_IntCrane4AreaColour);
+      // Crane 4 barge
+      pConf->Write("oftinfoCrane4MMSI", m_copy_Crane4MMSI);
+      pConf->Write("oftinfoCrane4Name", m_copy_Crane4Name);
+      pConf->Write("oftinfoCrane4LoadTime", m_copy_Crane4LoadTime);
+      pConf->Write("oftinfoCrane4MoorTime", m_copy_Crane4MoorTime);
+      pConf->Write("oftinfoCrane4UnMoorTime", m_copy_Crane4UnMoorTime);
+      
     }
   }
-}
+} //end of destructor
 
 int OFTinfoPi::Init() {
-  /**/ AddLocaleCatalog("opencpn-OFTinfo_pi");
+  AddLocaleCatalog("opencpn-OFTinfo_pi");
 
   // Set some default private member parameters
   m_hr_dialog_x = 40;
@@ -182,10 +266,16 @@ int OFTinfoPi::Init() {
     }
   }
   m_dialog = nullptr;
-
+  int AISTransPeriod = 0;
+  m_copy_AISTransPeriod.ToInt(&AISTransPeriod, 10);
+  DebugMessage = "Start with " + m_copy_AISTransPeriod + "sec";
+  wxMessageBox(DebugMessage, "OFTinfo_Timer");
+  Start(1000 * AISTransPeriod, wxTIMER_CONTINUOUS);  // start timer
+  
   return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
-          WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL | WANTS_CURSOR_LATLON |
-          WANTS_NMEA_SENTENCES | WANTS_AIS_SENTENCES | WANTS_PREFERENCES |
+          WANTS_TOOLBAR_CALLBACK | INSTALLS_TOOLBAR_TOOL |  WANTS_CURSOR_LATLON |
+          WANTS_NMEA_SENTENCES | WANTS_AIS_SENTENCES | 
+          WANTS_PREFERENCES |
           WANTS_PLUGIN_MESSAGING | WANTS_CONFIG);
 }
 
@@ -199,19 +289,6 @@ bool OFTinfoPi::DeInit() {
     SetOFTinfoDialogY(p.y);
     SetOFTinfoDialogSizeX(r.GetWidth());
     SetOFTinfoDialogSizeY(r.GetHeight());
-    /* if (m_copy_use_nmea) {
-      if (m_dialog->nmeastream->IsOpened()) {
-        m_dialog->nmeastream->Write();
-         m_dialog->nmeastream->Close();
-      }
-    }
-    */
-  
-
-   if ((m_dialog->m_timer) && (m_dialog->m_timer->IsRunning())) {
-    //  need to stop the timer or crash on exit
-      m_dialog->m_timer->Stop();
-   }
     m_dialog->Close();
     delete m_dialog;
     m_dialog = nullptr;
@@ -219,7 +296,11 @@ bool OFTinfoPi::DeInit() {
     m_show_oftinfo = false;
     SetToolbarItemState(m_leftclick_tool_id, m_show_oftinfo);
   }
-
+   if (IsRunning()) {
+     //  need to stop the timer or crash on exit
+     Stop(); // stop timer
+   }
+   // add other canceling action this (close file, MQTT and DB connection e.c.
   SaveConfig();
   RequestRefresh(m_parent_window);  // refresh main window
   return true;
@@ -298,9 +379,7 @@ void OFTinfoPi::ShowPreferencesDialog(wxWindow* parent) {
     pref->m_textCtrlSQLuser->SetValue(m_copy_SQLuser);
     pref->m_textCtrlSQLpassw->SetValue(m_copy_SQLpassw);
     pref->m_textCtrlSQLDBName->SetValue(m_copy_SQLDBName);
-
- 
-
+        
   if (pref->ShowModal() == wxID_OK) {
     // AIS Targets
     bool copy_AisToFile = pref->m_cbAisToFile->GetValue();
@@ -341,138 +420,45 @@ void OFTinfoPi::ShowPreferencesDialog(wxWindow* parent) {
 
 
     // AIS Targets
-    if (m_copy_AisToFile != copy_AisToFile) {
-      m_copy_AisToFile = copy_AisToFile;
-    }
-    if (m_copy_AisToMQTT != copy_AisToMQTT) {
-      m_copy_AisToMQTT = copy_AisToMQTT;
-    }
-    if (m_copy_AisToPSQL != copy_AisToPSQL) {
-      m_copy_AisToPSQL = copy_AisToPSQL;
-    }
-    if (m_copy_AISTransPeriod != copy_AISTransPeriod) {
-      m_copy_AISTransPeriod = copy_AISTransPeriod;
-    }
+    if (m_copy_AisToFile != copy_AisToFile) {m_copy_AisToFile = copy_AisToFile;}
+    if (m_copy_AisToMQTT != copy_AisToMQTT) {m_copy_AisToMQTT = copy_AisToMQTT;}
+    if (m_copy_AisToPSQL != copy_AisToPSQL) {m_copy_AisToPSQL = copy_AisToPSQL;}
+    if (m_copy_AISTransPeriod != copy_AISTransPeriod) {m_copy_AISTransPeriod = copy_AISTransPeriod;}
     // Target filter
-    if (m_copy_AISTargCargoOnly != copy_AISTargCargoOnly) {
-      m_copy_AISTargCargoOnly = copy_AISTargCargoOnly;
-    }
-    if (m_copy_AISTargZeroInc != copy_AISTargZeroInc) {
-      m_copy_AISTargZeroInc = copy_AISTargZeroInc;
-    }
+    if (m_copy_AISTargCargoOnly != copy_AISTargCargoOnly) {m_copy_AISTargCargoOnly = copy_AISTargCargoOnly;}
+    if (m_copy_AISTargZeroInc != copy_AISTargZeroInc) {m_copy_AISTargZeroInc = copy_AISTargZeroInc;}
     // Own Ship
-    if (m_copy_OwnMMSI != copy_OwnMMSI) {
-      m_copy_OwnMMSI = copy_OwnMMSI;
-    }
-    if (m_copy_AISTransmitAIVDO != copy_AISTransmitAIVDO) {
-      m_copy_AISTransmitAIVDO = copy_AISTransmitAIVDO;
-    }
+    if (m_copy_OwnMMSI != copy_OwnMMSI) {m_copy_OwnMMSI = copy_OwnMMSI;}
+    if (m_copy_AISTransmitAIVDO != copy_AISTransmitAIVDO) {m_copy_AISTransmitAIVDO = copy_AISTransmitAIVDO;}
     // OFT
-    if (m_copy_OFTMMSI1 != copy_OFTMMSI1) {
-      m_copy_OFTMMSI1 = copy_OFTMMSI1;
-    }
-    if (m_copy_OFTMMSI2 != copy_OFTMMSI2) {
-      m_copy_OFTMMSI2 = copy_OFTMMSI2;
-    }
+    if (m_copy_OFTMMSI1 != copy_OFTMMSI1) {m_copy_OFTMMSI1 = copy_OFTMMSI1;}
+    if (m_copy_OFTMMSI2 != copy_OFTMMSI2) {m_copy_OFTMMSI2 = copy_OFTMMSI2;}
     // load areas
-    if (m_copy_MonToFile != copy_MonToFile) {
-      m_copy_MonToFile = copy_MonToFile;
-    }
-    if (m_copy_MonToMQTT != copy_MonToMQTT) {
-      m_copy_MonToMQTT = copy_MonToMQTT;
-    }
-    if (m_copy_MonToPSQL != copy_MonToPSQL) {
-      m_copy_MonToPSQL = copy_MonToPSQL;
-    }
-    if (m_copy_MonTransPeriod != copy_MonTransPeriod) {
-      m_copy_MonTransPeriod = copy_MonTransPeriod;
-    }
+    if (m_copy_MonToFile != copy_MonToFile) {m_copy_MonToFile = copy_MonToFile;}
+    if (m_copy_MonToMQTT != copy_MonToMQTT) {m_copy_MonToMQTT = copy_MonToMQTT;}
+    if (m_copy_MonToPSQL != copy_MonToPSQL) {m_copy_MonToPSQL = copy_MonToPSQL;}
+    if (m_copy_MonTransPeriod != copy_MonTransPeriod) {m_copy_MonTransPeriod = copy_MonTransPeriod;}
     // file
-    if (m_copy_AisFileName != copy_AisFileName) {
-      m_copy_AisFileName = copy_AisFileName;
-    }
-    if (m_copy_AISFilePath != copy_AISFilePath) {
-      m_copy_AISFilePath = copy_AISFilePath;
-    }
+    if (m_copy_AisFileName != copy_AisFileName) {m_copy_AisFileName = copy_AisFileName;}
+    if (m_copy_AISFilePath != copy_AISFilePath) {m_copy_AISFilePath = copy_AISFilePath;}
     // MQTT
-    if (m_copy_MQTTBrokerIP != copy_MQTTBrokerIP) {
-      m_copy_MQTTBrokerIP = copy_MQTTBrokerIP;
-    }
-    if (m_copy_MQTTBrokerPort != copy_MQTTBrokerPort) {
-      m_copy_MQTTBrokerPort = copy_MQTTBrokerPort;
-    }
-    if (m_copy_MQTTclientID != copy_MQTTclientID) {
-      m_copy_MQTTclientID = copy_MQTTclientID;
-    }
-    if (m_copy_MQTTuser != copy_MQTTuser) {
-      m_copy_MQTTuser = copy_MQTTuser;
-    }
-    if (m_copy_MQTTpassw != copy_MQTTpassw) {
-      m_copy_MQTTpassw = copy_MQTTpassw;
-    }
-    if (m_copy_MQTTPublishTopic != copy_MQTTPublishTopic) {
-      m_copy_MQTTPublishTopic = copy_MQTTPublishTopic;
-    }
-    if (m_copy_MQTTSubscribeTopic != copy_MQTTSubscribeTopic) {
-      m_copy_MQTTSubscribeTopic = copy_MQTTSubscribeTopic;
-    }
+    if (m_copy_MQTTBrokerIP != copy_MQTTBrokerIP) {m_copy_MQTTBrokerIP = copy_MQTTBrokerIP;}
+    if (m_copy_MQTTBrokerPort != copy_MQTTBrokerPort) {m_copy_MQTTBrokerPort = copy_MQTTBrokerPort;}
+    if (m_copy_MQTTclientID != copy_MQTTclientID) {m_copy_MQTTclientID = copy_MQTTclientID;}
+    if (m_copy_MQTTuser != copy_MQTTuser) {m_copy_MQTTuser = copy_MQTTuser;}
+    if (m_copy_MQTTpassw != copy_MQTTpassw) {m_copy_MQTTpassw = copy_MQTTpassw;}
+    if (m_copy_MQTTPublishTopic != copy_MQTTPublishTopic) {m_copy_MQTTPublishTopic = copy_MQTTPublishTopic;}
+    if (m_copy_MQTTSubscribeTopic != copy_MQTTSubscribeTopic) {m_copy_MQTTSubscribeTopic = copy_MQTTSubscribeTopic;}
     // Postgresql
-    if (m_copy_SQLip != copy_SQLip) {
-      m_copy_SQLip = copy_SQLip;
-    }
-    if (m_copy_SQLport != copy_SQLport) {
-      m_copy_SQLport = copy_SQLport;
-    }
-    if (m_copy_SQLuser != copy_SQLuser) {
-      m_copy_SQLuser = copy_SQLuser;
-    }
-    if (m_copy_SQLpassw != copy_SQLpassw) {
-      m_copy_SQLpassw = copy_SQLpassw;
-    }
-    if (m_copy_SQLDBName != copy_SQLDBName) {
-      m_copy_SQLDBName = copy_SQLDBName;
-    }
+    if (m_copy_SQLip != copy_SQLip) {m_copy_SQLip = copy_SQLip;}
+    if (m_copy_SQLport != copy_SQLport) {m_copy_SQLport = copy_SQLport;}
+    if (m_copy_SQLuser != copy_SQLuser) {m_copy_SQLuser = copy_SQLuser;}
+    if (m_copy_SQLpassw != copy_SQLpassw) {m_copy_SQLpassw = copy_SQLpassw;}
+    if (m_copy_SQLDBName != copy_SQLDBName) {m_copy_SQLDBName = copy_SQLDBName;}
     
-    if (m_dialog) {
-      // AIS Targets
-      m_dialog->m_bAisToFile = m_copy_AisToFile;
-      m_dialog->m_bAisToMQTT = m_copy_AisToMQTT;
-      m_dialog->m_bAisToPSQL = m_copy_AisToPSQL;
-      m_dialog->m_tAISTransPeriod = m_copy_AISTransPeriod;
-      // Target filter
-      m_dialog->m_bAISTargCargoOnly = m_copy_AISTargCargoOnly;
-      m_dialog->m_bAISTargZeroInc = m_copy_AISTargZeroInc;
-      // Own Ship
-      m_dialog->m_tOwnMMSI = m_copy_OwnMMSI;
-      m_dialog->m_bAISTransmitAIVDO = m_copy_AISTransmitAIVDO;
-      // OFT
-      m_dialog->m_tOFTMMSI1 = m_copy_OFTMMSI1;
-      m_dialog->m_tOFTMMSI2 = m_copy_OFTMMSI2;
-      // load areas
-      m_dialog->m_bMonToFile = m_copy_MonToFile;
-      m_dialog->m_bMonToMQTT = m_copy_MonToMQTT;
-      m_dialog->m_bMonToPSQL = m_copy_MonToPSQL;
-      m_dialog->m_tMonTransPeriod = m_copy_MonTransPeriod;
-      // file
-      m_dialog->m_tAisFileName = m_copy_AisFileName;
-      m_dialog->m_tAISFilePath = m_copy_AISFilePath;
-      // MQTT
-      m_dialog->m_tMQTTBrokerIP = m_copy_MQTTBrokerIP;
-      m_dialog->m_tMQTTBrokerPort = m_copy_MQTTBrokerPort;
-      m_dialog->m_tMQTTclientID = m_copy_MQTTclientID;
-      m_dialog->m_tMQTTuser = m_copy_MQTTuser;
-      m_dialog->m_tMQTTpassw = m_copy_MQTTpassw;
-      m_dialog->m_tMQTTPublishTopic = m_copy_MQTTPublishTopic;
-      m_dialog->m_tMQTTSubscribeTopic = m_copy_MQTTSubscribeTopic;
-      // Postgresql
-      m_dialog->m_tSQLip = m_copy_SQLip;
-      m_dialog->m_tSQLport = m_copy_SQLport;
-      m_dialog->m_tSQLuser = m_copy_SQLuser;
-      m_dialog->m_tSQLpassw = m_copy_SQLpassw;
-      m_dialog->m_tSQLDBName = m_copy_SQLDBName;
-    }
-
     SaveConfig();
+
+    OFTinfoPi::SetMainTaskPeriod();
 
     RequestRefresh(m_parent_window);  // refresh main window
   }
@@ -486,15 +472,92 @@ void OFTinfoPi::OnToolbarToolCallback(int id) {
    if (!m_dialog) {
     m_dialog = new Dlg(m_parent_window);
     m_dialog->plugin = this;
-    m_dialog->m_timer = new wxTimer(m_dialog);
+    //m_dialog->m_timer = new wxTimer(m_dialog);
     m_dialog->Move(wxPoint(m_hr_dialog_x, m_hr_dialog_y));
     m_dialog->SetSize(m_hr_dialog_sx, m_hr_dialog_sy);
 
-    wxMenu dummy_menu;
-    m_position_menu_id = AddCanvasContextMenuItem(
-        new wxMenuItem(&dummy_menu, -1, _("Select Vessel Start Position")),
-        this);
-    SetCanvasContextMenuItemViz(m_position_menu_id, true);
+         
+      // base dialog
+    // Unload Area
+    m_dialog->m_bUnloadAreaEnable = m_copy_UnloadAreaEnable;
+    m_dialog->m_bUnloadAreaVisible = m_copy_UnloadAreaVisible;
+    m_dialog->m_bOGVDataVisible = m_copy_OGVDataVisible;
+    m_dialog->m_bUnloadAreaSTBD = m_copy_UnloadAreaSTBD;
+    m_dialog->m_bUnloadAreaPORT = m_copy_UnloadAreaPORT;
+    m_dialog->m_tUnloadAreaAftTrig = m_copy_UnloadAreaAftTrig;
+    m_dialog->m_tUnloadAreaBowTrig = m_copy_UnloadAreaBowTrig;
+    m_dialog->m_tUnloadAreaHist = m_copy_UnloadAreaHist;
+    m_dialog->m_tUnloadAreaDistance = m_copy_UnloadAreaDistance;
+    m_dialog->m_tUnloadAreaLostTime = m_copy_UnloadAreaLostTime;
+    m_dialog->m_cUnloadAreaColour = m_copy_UnloadAreaColour;
+    // OGV
+    m_dialog->m_tOGVMMSI = m_copy_OGVMMSI;
+    m_dialog->m_tOGVName = m_copy_OGVName;
+    m_dialog->m_tOGVLoadTime = m_copy_OGVLoadTime;
+    m_dialog->m_tOGVMoorTime = m_copy_OGVMoorTime;
+    m_dialog->m_tOGVUnMoorTime = m_copy_OGVUnMoorTime;
+    // load Areas
+    m_dialog->m_tLoadAreaLostTime = m_copy_LoadAreaLostTime;
+    m_dialog->m_tLoadAreaHist = m_copy_LoadAreaHist;
+    m_dialog->m_tLoadAreaDistance = m_copy_LoadAreaDistance;
+    // Crane 1
+    m_dialog->m_bCrane1AreaEnable = m_copy_Crane1AreaEnable;
+    m_dialog->m_bCrane1AreaVisible = m_copy_Crane1AreaVisible;
+    m_dialog->m_bCrane1BargeDataVisible = m_copy_Crane1BargeDataVisible;
+    m_dialog->m_tCrane1AreaAftTrig = m_copy_Crane1AreaAftTrig;
+    m_dialog->m_tCrane1AreaBowTrig = m_copy_Crane1AreaBowTrig;
+    m_dialog->m_cCrane1AreaColour = m_copy_Crane1AreaColour;
+    // Crane 1 barge
+    m_dialog->m_tCrane1MMSI = m_copy_Crane1MMSI;
+    m_dialog->m_tCrane1Name = m_copy_Crane1Name;
+    m_dialog->m_tCrane1LoadTime = m_copy_Crane1LoadTime;
+    m_dialog->m_tCrane1MoorTime = m_copy_Crane1MoorTime;
+    m_dialog->m_tCrane1UnMoorTime = m_copy_Crane1UnMoorTime;
+    // Crane 2
+    m_dialog->m_bCrane2AreaEnable = m_copy_Crane2AreaEnable;
+    m_dialog->m_bCrane2AreaVisible = m_copy_Crane2AreaVisible;
+    m_dialog->m_bCrane2BargeDataVisible = m_copy_Crane2BargeDataVisible;
+    m_dialog->m_tCrane2AreaAftTrig = m_copy_Crane2AreaAftTrig;
+    m_dialog->m_tCrane2AreaBowTrig = m_copy_Crane2AreaBowTrig;
+    m_dialog->m_cCrane2AreaColour = m_copy_Crane2AreaColour;
+    // Crane 2 barge
+    m_dialog->m_tCrane2MMSI = m_copy_Crane2MMSI;
+    m_dialog->m_tCrane2Name = m_copy_Crane2Name;
+    m_dialog->m_tCrane2LoadTime = m_copy_Crane2LoadTime;
+    m_dialog->m_tCrane2MoorTime = m_copy_Crane2MoorTime;
+    m_dialog->m_tCrane2UnMoorTime = m_copy_Crane2UnMoorTime;
+    // Crane 3
+    m_dialog->m_bCrane3AreaEnable = m_copy_Crane3AreaEnable;
+    m_dialog->m_bCrane3AreaVisible = m_copy_Crane3AreaVisible;
+    m_dialog->m_bCrane3BargeDataVisible = m_copy_Crane3BargeDataVisible;
+    m_dialog->m_tCrane3AreaAftTrig = m_copy_Crane3AreaAftTrig;
+    m_dialog->m_tCrane3AreaBowTrig = m_copy_Crane3AreaBowTrig;
+    m_dialog->m_cCrane3AreaColour = m_copy_Crane3AreaColour;
+    // Crane 3 barge
+    m_dialog->m_tCrane3MMSI = m_copy_Crane3MMSI;
+    m_dialog->m_tCrane3Name = m_copy_Crane3Name;
+    m_dialog->m_tCrane3LoadTime = m_copy_Crane3LoadTime;
+    m_dialog->m_tCrane3MoorTime = m_copy_Crane3MoorTime;
+    m_dialog->m_tCrane3UnMoorTime = m_copy_Crane3UnMoorTime;
+    // Crane 4
+    m_dialog->m_bCrane4AreaEnable = m_copy_Crane4AreaEnable;
+    m_dialog->m_bCrane4AreaVisible = m_copy_Crane4AreaVisible;
+    m_dialog->m_bCrane4BargeDataVisible = m_copy_Crane4BargeDataVisible;
+    m_dialog->m_tCrane4AreaAftTrig = m_copy_Crane4AreaAftTrig;
+    m_dialog->m_tCrane4AreaBowTrig = m_copy_Crane4AreaBowTrig;
+    m_dialog->m_cCrane4AreaColour = m_copy_Crane4AreaColour;
+    // Crane 4 barge
+    m_dialog->m_tCrane4MMSI = m_copy_Crane4MMSI;
+    m_dialog->m_tCrane4Name = m_copy_Crane4Name;
+    m_dialog->m_tCrane4LoadTime = m_copy_Crane4LoadTime;
+    m_dialog->m_tCrane4MoorTime = m_copy_Crane4MoorTime;
+    m_dialog->m_tCrane4UnMoorTime = m_copy_Crane4UnMoorTime;
+
+   // wxMenu dummy_menu;
+   // m_position_menu_id = AddCanvasContextMenuItem(
+   //     new wxMenuItem(&dummy_menu, -1, _("Select Vessel Start Position")),
+   //     this);
+   // SetCanvasContextMenuItemViz(m_position_menu_id, true);
   }
 
   // m_pDialog->Fit();
@@ -507,7 +570,53 @@ void OFTinfoPi::OnToolbarToolCallback(int id) {
     m_dialog->SetSize(m_hr_dialog_sx, m_hr_dialog_sy);
     m_dialog->Show();
 
-  } else {
+  } else { // close dialog
+    // base dialog
+    // Unload Area
+    m_copy_UnloadAreaEnable = m_dialog->m_bUnloadAreaEnable;
+    m_copy_UnloadAreaVisible = m_dialog->m_bUnloadAreaVisible;
+    m_copy_OGVDataVisible = m_dialog->m_bOGVDataVisible;
+    m_copy_UnloadAreaSTBD = m_dialog->m_bUnloadAreaSTBD;
+    m_copy_UnloadAreaPORT = m_dialog->m_bUnloadAreaPORT;
+    m_copy_UnloadAreaAftTrig = m_dialog->m_tUnloadAreaAftTrig;
+    m_copy_UnloadAreaBowTrig = m_dialog->m_tUnloadAreaBowTrig;
+    m_copy_UnloadAreaHist = m_dialog->m_tUnloadAreaHist;
+    m_copy_UnloadAreaDistance = m_dialog->m_tUnloadAreaDistance;
+    m_copy_UnloadAreaLostTime = m_dialog->m_tUnloadAreaLostTime;
+    m_copy_UnloadAreaColour = m_dialog->m_cUnloadAreaColour;
+    // load Areas
+    m_copy_LoadAreaLostTime = m_dialog->m_tLoadAreaLostTime;
+    m_copy_LoadAreaHist = m_dialog->m_tLoadAreaHist;
+    m_copy_LoadAreaDistance = m_dialog->m_tLoadAreaDistance;
+    // Crane 1
+    m_copy_Crane1AreaEnable = m_dialog->m_bCrane1AreaEnable;
+    m_copy_Crane1AreaVisible = m_dialog->m_bCrane1AreaVisible;
+    m_copy_Crane1BargeDataVisible = m_dialog->m_bCrane1BargeDataVisible;
+    m_copy_Crane1AreaAftTrig = m_dialog->m_tCrane1AreaAftTrig;
+    m_copy_Crane1AreaBowTrig = m_dialog->m_tCrane1AreaBowTrig;
+    m_copy_Crane1AreaColour = m_dialog->m_cCrane1AreaColour;
+    // Crane 2
+    m_copy_Crane2AreaEnable = m_dialog->m_bCrane2AreaEnable;
+    m_copy_Crane2AreaVisible = m_dialog->m_bCrane2AreaVisible;
+    m_copy_Crane2BargeDataVisible = m_dialog->m_bCrane2BargeDataVisible;
+    m_copy_Crane2AreaAftTrig = m_dialog->m_tCrane2AreaAftTrig;
+    m_copy_Crane2AreaBowTrig = m_dialog->m_tCrane2AreaBowTrig;
+    m_copy_Crane2AreaColour = m_dialog->m_cCrane2AreaColour;
+    // Crane 3
+    m_copy_Crane3AreaEnable = m_dialog->m_bCrane3AreaEnable;
+    m_copy_Crane3AreaVisible = m_dialog->m_bCrane3AreaVisible;
+    m_copy_Crane3BargeDataVisible = m_dialog->m_bCrane3BargeDataVisible;
+    m_copy_Crane3AreaAftTrig = m_dialog->m_tCrane3AreaAftTrig;
+    m_copy_Crane3AreaBowTrig = m_dialog->m_tCrane3AreaBowTrig;
+    m_copy_Crane3AreaColour = m_dialog->m_cCrane3AreaColour;
+    // Crane 4
+    m_copy_Crane4AreaEnable = m_dialog->m_bCrane4AreaEnable;
+    m_copy_Crane4AreaVisible = m_dialog->m_bCrane4AreaVisible;
+    m_copy_Crane4BargeDataVisible = m_dialog->m_bCrane4BargeDataVisible;
+    m_copy_Crane4AreaAftTrig = m_dialog->m_tCrane4AreaAftTrig;
+    m_copy_Crane4AreaBowTrig = m_dialog->m_tCrane4AreaBowTrig;
+    m_copy_Crane4AreaColour = m_dialog->m_cCrane4AreaColour;
+    
     m_dialog->Hide();
   }
 
@@ -556,8 +665,8 @@ bool OFTinfoPi::LoadConfig() {
       conf->Read("oftinfoMonToPSQL", &m_copy_MonToPSQL, false);
       m_copy_MonTransPeriod = conf->Read("oftinfoMonTransPeriod", "20");
       // file
-      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets");
-      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts");
+      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets.txt");
+      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts\\");
       // MQTT
       m_copy_MQTTBrokerIP = conf->Read("oftinfoMQTTBrokerIP", "127.0.0.1");
       m_copy_MQTTBrokerPort = conf->Read("oftinfoMQTTBrokerPort", "1883");
@@ -572,6 +681,87 @@ bool OFTinfoPi::LoadConfig() {
       m_copy_SQLuser = conf->Read("oftinfoSQLuser", "user");
       m_copy_SQLpassw = conf->Read("oftinfoSQLpassw", "password");
       m_copy_SQLDBName = conf->Read("oftinfoSQLDBName", "cargo");
+
+      // base dialog
+      // Unload Area
+      conf->Read("oftinfoUnloadAreaEnable", &m_copy_UnloadAreaEnable, true);
+      conf->Read("oftinfoUnloadAreaVisible", &m_copy_UnloadAreaVisible, true);
+      conf->Read("oftinfoOGVDataVisible", &m_copy_OGVDataVisible, true);
+      conf->Read("oftinfoUnloadAreaSTBD", &m_copy_UnloadAreaSTBD, false);
+      conf->Read("oftinfoUnloadAreaPORT", &m_copy_UnloadAreaPORT, true);
+      m_copy_UnloadAreaAftTrig = conf->Read("oftinfoUnloadAreaAftTrig", "0");
+      m_copy_UnloadAreaBowTrig = conf->Read("oftinfoUnloadAreaBowTrig", "0");
+      m_copy_UnloadAreaHist = conf->Read("oftinfoUnloadAreaHist", "60");
+      m_copy_UnloadAreaDistance = conf->Read("oftinfoUnloadAreaDistance", "60");
+      m_copy_UnloadAreaLostTime = conf->Read("oftinfoUnloadAreaLostTime", "60");
+      conf->Read("oftinfoUnloadAreaColour", &m_copy_IntUnloadAreaColour, 0x000000);
+      m_copy_UnloadAreaColour.SetRGB(m_copy_IntUnloadAreaColour); //red, green, blue
+      // OGV
+      m_copy_OGVMMSI = conf->Read("oftinfoOGVMMSI", "0");
+      m_copy_OGVName = conf->Read("oftinfoOGVName", "");
+      m_copy_OGVLoadTime = conf->Read("oftinfoOGVLoadTime", "00:00:00");
+      m_copy_OGVMoorTime = conf->Read("oftinfoOGVMoorTime", "01.01.1970 00:00:00");
+      m_copy_OGVUnMoorTime = conf->Read("oftinfoOGVUnMoorTime", "01.01.1970 00:00:00");
+      // load Areas
+      m_copy_LoadAreaLostTime = conf->Read("oftinfoLoadAreaLostTime", "60");
+      m_copy_LoadAreaHist = conf->Read("oftinfoLoadAreaHist", "10");
+      m_copy_LoadAreaDistance = conf->Read("oftinfoLoadAreaDistance", "60");
+      // Crane 1
+      conf->Read("oftinfoCrane1AreaEnable", &m_copy_Crane1AreaEnable, true);
+      conf->Read("oftinfoCrane1AreaEnable", &m_copy_Crane1AreaVisible, true);
+      conf->Read("oftinfoCrane1BargeDataVisible", &m_copy_Crane1BargeDataVisible, true);
+      m_copy_Crane1AreaAftTrig = conf->Read("oftinfoCrane1AreaAftTrig", "70");
+      m_copy_Crane1AreaBowTrig = conf->Read("oftinfoCrane1AreaBowTrig", "70");
+      conf->Read("oftinfoCrane1AreaColour", &m_copy_IntCrane1AreaColour, 0x000000);
+      m_copy_Crane1AreaColour.SetRGB(m_copy_IntCrane1AreaColour);  // red, green, blue
+      // Crane 1 barge
+      m_copy_Crane1MMSI = conf->Read("oftinfoCrane1MMSI", "0");
+      m_copy_Crane1Name = conf->Read("oftinfoCrane1Name", "");
+      m_copy_Crane1LoadTime = conf->Read("oftinfoCrane1LoadTime", "00:00:00");
+      m_copy_Crane1MoorTime = conf->Read("oftinfoCrane1MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane1UnMoorTime = conf->Read("oftinfoCrane1UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 2
+      conf->Read("oftinfoCrane2AreaEnable", &m_copy_Crane2AreaEnable, true);
+      conf->Read("oftinfoCrane2AreaEnable", &m_copy_Crane2AreaVisible, true);
+      conf->Read("oftinfoCrane2BargeDataVisible", &m_copy_Crane2BargeDataVisible, true);
+      m_copy_Crane2AreaAftTrig = conf->Read("oftinfoCrane2AreaAftTrig", "50");
+      m_copy_Crane2AreaBowTrig = conf->Read("oftinfoCrane2AreaBowTrig", "50");
+      conf->Read("oftinfoCrane2AreaColour", &m_copy_IntCrane2AreaColour, 0x000000);
+      m_copy_Crane2AreaColour.SetRGB(m_copy_IntCrane2AreaColour);  // red, green, blue
+      //  Crane 2 barge
+      m_copy_Crane2MMSI = conf->Read("oftinfoCrane2MMSI", "0");
+      m_copy_Crane2Name = conf->Read("oftinfoCrane2Name", "");
+      m_copy_Crane2LoadTime = conf->Read("oftinfoCrane2LoadTime", "00:00:00");
+      m_copy_Crane2MoorTime = conf->Read("oftinfoCrane2MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane2UnMoorTime = conf->Read("oftinfoCrane2UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 3
+      conf->Read("oftinfoCrane3AreaEnable", &m_copy_Crane3AreaEnable, true);
+      conf->Read("oftinfoCrane3AreaEnable", &m_copy_Crane3AreaVisible, true);
+      conf->Read("oftinfoCrane3BargeDataVisible", &m_copy_Crane3BargeDataVisible, true);
+      m_copy_Crane3AreaAftTrig = conf->Read("oftinfoCrane3AreaAftTrig", "50");
+      m_copy_Crane3AreaBowTrig = conf->Read("oftinfoCrane3AreaBowTrig", "50");
+      conf->Read("oftinfoCrane3AreaColour", &m_copy_IntCrane3AreaColour, 0x000000);
+      m_copy_Crane3AreaColour.SetRGB( m_copy_IntCrane3AreaColour);  // red, green, blue
+      //  Crane 3 barge
+      m_copy_Crane3MMSI = conf->Read("oftinfoCrane3MMSI", "0");
+      m_copy_Crane3Name = conf->Read("oftinfoCrane3Name", "");
+      m_copy_Crane3LoadTime = conf->Read("oftinfoCrane3LoadTime", "00:00:00");
+      m_copy_Crane3MoorTime = conf->Read("oftinfoCrane3MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane3UnMoorTime = conf->Read("oftinfoCrane3UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 4
+      conf->Read("oftinfoCrane4AreaEnable", &m_copy_Crane4AreaEnable, true);
+      conf->Read("oftinfoCrane4AreaEnable", &m_copy_Crane4AreaVisible, true);
+      conf->Read("oftinfoCrane4BargeDataVisible", &m_copy_Crane4BargeDataVisible, true);
+      m_copy_Crane4AreaAftTrig = conf->Read("oftinfoCrane4AreaAftTrig", "50");
+      m_copy_Crane4AreaBowTrig = conf->Read("oftinfoCrane4AreaBowTrig", "50");
+      conf->Read("oftinfoCrane4AreaColour", &m_copy_IntCrane4AreaColour, 0x000000);
+      m_copy_Crane4AreaColour.SetRGB(m_copy_IntCrane4AreaColour);  // red, green, blue
+      //  Crane 4 barge
+      m_copy_Crane4MMSI = conf->Read("oftinfoCrane4MMSI", "0");
+      m_copy_Crane4Name = conf->Read("oftinfoCrane4Name", "");
+      m_copy_Crane4LoadTime = conf->Read("oftinfoCrane4LoadTime", "00:00:00");
+      m_copy_Crane4MoorTime = conf->Read("oftinfoCrane4MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane4UnMoorTime = conf->Read("oftinfoCrane4UnMoorTime", "01.01.1970 00:00:00");
       
       m_hr_dialog_x = conf->Read("DialogPosX", 40L);
       m_hr_dialog_y = conf->Read("DialogPosY", 140L);
@@ -606,24 +796,103 @@ bool OFTinfoPi::LoadConfig() {
       conf->Read("oftinfoMonToPSQL", &m_copy_MonToPSQL, false);
       m_copy_MonTransPeriod = conf->Read("oftinfoMonTransPeriod", "20");
       // file
-      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets");
-      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts");
+      m_copy_AisFileName = conf->Read("oftinfoAisFileName", "AISTargets.txt");
+      m_copy_AISFilePath = conf->Read("oftinfoAISFilePath", "C:\\scripts\\");
       // MQTT
       m_copy_MQTTBrokerIP = conf->Read("oftinfoMQTTBrokerIP", "127.0.0.1");
       m_copy_MQTTBrokerPort = conf->Read("oftinfoMQTTBrokerPort", "1883");
       m_copy_MQTTclientID = conf->Read("oftinfoMQTTclientID", "OFTinfoMain");
       m_copy_MQTTuser = conf->Read("oftinfoMQTTuser", "user");
       m_copy_MQTTpassw = conf->Read("oftinfoMQTTpassw", "password");
-      m_copy_MQTTPublishTopic =
-          conf->Read("oftinfoMQTTPublishTopic", "Cargo/OCPN");
-      m_copy_MQTTSubscribeTopic =
-          conf->Read("oftinfoMQTTSubscribeTopic", "Cargo/OCPN");
+      m_copy_MQTTPublishTopic = conf->Read("oftinfoMQTTPublishTopic", "Cargo/OCPN");
+      m_copy_MQTTSubscribeTopic = conf->Read("oftinfoMQTTSubscribeTopic", "Cargo/OCPN");
       // Postgresql
       m_copy_SQLip = conf->Read("oftinfoSQLip", "127.0.0.1");
       m_copy_SQLport = conf->Read("oftinfoSQLport", "5432");
       m_copy_SQLuser = conf->Read("oftinfoSQLuser", "user");
       m_copy_SQLpassw = conf->Read("oftinfoSQLpassw", "password");
       m_copy_SQLDBName = conf->Read("oftinfoSQLDBName", "cargo");
+
+      // base dialog
+      // Unload Area
+      conf->Read("oftinfoUnloadAreaEnable", &m_copy_UnloadAreaEnable, true);
+      conf->Read("oftinfoUnloadAreaVisible", &m_copy_UnloadAreaVisible, true);
+      conf->Read("oftinfoOGVDataVisible", &m_copy_OGVDataVisible, true);
+      conf->Read("oftinfoUnloadAreaSTBD", &m_copy_UnloadAreaSTBD, false);
+      conf->Read("oftinfoUnloadAreaPORT", &m_copy_UnloadAreaPORT, true);
+      m_copy_UnloadAreaAftTrig = conf->Read("oftinfoUnloadAreaAftTrig", "0");
+      m_copy_UnloadAreaBowTrig = conf->Read("oftinfoUnloadAreaBowTrig", "0");
+      m_copy_UnloadAreaHist = conf->Read("oftinfoUnloadAreaHist", "60");
+      m_copy_UnloadAreaDistance = conf->Read("oftinfoUnloadAreaDistance", "60");
+      m_copy_UnloadAreaLostTime = conf->Read("oftinfoUnloadAreaLostTime", "60");
+      conf->Read("oftinfoUnloadAreaColour", &m_copy_IntUnloadAreaColour, 0x000000);
+      m_copy_UnloadAreaColour.SetRGB(m_copy_IntUnloadAreaColour);  // red, green, blue
+      //  OGV
+      m_copy_OGVMMSI = conf->Read("oftinfoOGVMMSI", "0");
+      m_copy_OGVName = conf->Read("oftinfoOGVName", "");
+      m_copy_OGVLoadTime = conf->Read("oftinfoOGVLoadTime", "00:00:00");
+      m_copy_OGVMoorTime = conf->Read("oftinfoOGVMoorTime", "01.01.1970 00:00:00");
+      m_copy_OGVUnMoorTime = conf->Read("oftinfoOGVUnMoorTime", "01.01.1970 00:00:00");
+      // load Areas
+      m_copy_LoadAreaLostTime = conf->Read("oftinfoLoadAreaLostTime", "60");
+      m_copy_LoadAreaHist = conf->Read("oftinfoLoadAreaHist", "10");
+      m_copy_LoadAreaDistance = conf->Read("oftinfoLoadAreaDistance", "60");
+      // Crane 1
+      conf->Read("oftinfoCrane1AreaEnable", &m_copy_Crane1AreaEnable, true);
+      conf->Read("oftinfoCrane1AreaEnable", &m_copy_Crane1AreaVisible, true);
+      conf->Read("oftinfoCrane1BargeDataVisible", &m_copy_Crane1BargeDataVisible, true);
+      m_copy_Crane1AreaAftTrig = conf->Read("oftinfoCrane1AreaAftTrig", "70");
+      m_copy_Crane1AreaBowTrig = conf->Read("oftinfoCrane1AreaBowTrig", "70");
+      conf->Read("oftinfoCrane1AreaColour", &m_copy_IntCrane1AreaColour, 0x000000);
+      m_copy_Crane1AreaColour.SetRGB(m_copy_IntCrane1AreaColour);  // red, green, blue
+      //  Crane 1 barge
+      m_copy_Crane1MMSI = conf->Read("oftinfoCrane1MMSI", "0");
+      m_copy_Crane1Name = conf->Read("oftinfoCrane1Name", "");
+      m_copy_Crane1LoadTime = conf->Read("oftinfoCrane1LoadTime", "00:00:00");
+      m_copy_Crane1MoorTime = conf->Read("oftinfoCrane1MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane1UnMoorTime = conf->Read("oftinfoCrane1UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 2
+      conf->Read("oftinfoCrane2AreaEnable", &m_copy_Crane2AreaEnable, true);
+      conf->Read("oftinfoCrane2AreaEnable", &m_copy_Crane2AreaVisible, true);
+      conf->Read("oftinfoCrane2BargeDataVisible", &m_copy_Crane2BargeDataVisible, true);
+      m_copy_Crane2AreaAftTrig = conf->Read("oftinfoCrane2AreaAftTrig", "50");
+      m_copy_Crane2AreaBowTrig = conf->Read("oftinfoCrane2AreaBowTrig", "50");
+      conf->Read("oftinfoCrane2AreaColour", &m_copy_IntCrane2AreaColour, 0x000000);
+      m_copy_Crane2AreaColour.SetRGB(m_copy_IntCrane2AreaColour);  // red, green, blue
+      //  Crane 2 barge
+      m_copy_Crane2MMSI = conf->Read("oftinfoCrane2MMSI", "0");
+      m_copy_Crane2Name = conf->Read("oftinfoCrane2Name", "");
+      m_copy_Crane2LoadTime = conf->Read("oftinfoCrane2LoadTime", "00:00:00");
+      m_copy_Crane2MoorTime = conf->Read("oftinfoCrane2MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane2UnMoorTime = conf->Read("oftinfoCrane2UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 3
+      conf->Read("oftinfoCrane3AreaEnable", &m_copy_Crane3AreaEnable, true);
+      conf->Read("oftinfoCrane3AreaEnable", &m_copy_Crane3AreaVisible, true);
+      conf->Read("oftinfoCrane3BargeDataVisible", &m_copy_Crane3BargeDataVisible, true);
+      m_copy_Crane3AreaAftTrig = conf->Read("oftinfoCrane3AreaAftTrig", "50");
+      m_copy_Crane3AreaBowTrig = conf->Read("oftinfoCrane3AreaBowTrig", "50");
+      conf->Read("oftinfoCrane3AreaColour", &m_copy_IntCrane3AreaColour, 0x000000);
+      m_copy_Crane3AreaColour.SetRGB(m_copy_IntCrane3AreaColour);  // red, green, blue
+      //  Crane 3 barge
+      m_copy_Crane3MMSI = conf->Read("oftinfoCrane3MMSI", "0");
+      m_copy_Crane3Name = conf->Read("oftinfoCrane3Name", "");
+      m_copy_Crane3LoadTime = conf->Read("oftinfoCrane3LoadTime", "00:00:00");
+      m_copy_Crane3MoorTime = conf->Read("oftinfoCrane3MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane3UnMoorTime = conf->Read("oftinfoCrane3UnMoorTime", "01.01.1970 00:00:00");
+      // Crane 4
+      conf->Read("oftinfoCrane4AreaEnable", &m_copy_Crane4AreaEnable, true);
+      conf->Read("oftinfoCrane4AreaEnable", &m_copy_Crane4AreaVisible, true);
+      conf->Read("oftinfoCrane4BargeDataVisible", &m_copy_Crane4BargeDataVisible, true);
+      m_copy_Crane4AreaAftTrig = conf->Read("oftinfoCrane4AreaAftTrig", "50");
+      m_copy_Crane4AreaBowTrig = conf->Read("oftinfoCrane4AreaBowTrig", "50");
+      conf->Read("oftinfoCrane4AreaColour", &m_copy_IntCrane4AreaColour, 0x000000);
+      m_copy_Crane4AreaColour.SetRGB(m_copy_IntCrane4AreaColour);  // red, green, blue
+      //  Crane 4 barge
+      m_copy_Crane4MMSI = conf->Read("oftinfoCrane4MMSI", "0");
+      m_copy_Crane4Name = conf->Read("oftinfoCrane4Name", "");
+      m_copy_Crane4LoadTime = conf->Read("oftinfoCrane4LoadTime", "00:00:00");
+      m_copy_Crane4MoorTime = conf->Read("oftinfoCrane4MoorTime", "01.01.1970 00:00:00");
+      m_copy_Crane4UnMoorTime = conf->Read("oftinfoCrane4UnMoorTime", "01.01.1970 00:00:00");
 
       m_hr_dialog_x = conf->Read("DialogPosX", 40L);
       m_hr_dialog_y = conf->Read("DialogPosY", 140L);
@@ -690,12 +959,93 @@ bool OFTinfoPi::SaveConfig() {
     conf->Write("oftinfoSQLpassw", m_copy_SQLpassw);
     conf->Write("oftinfoSQLDBName", m_copy_SQLDBName);
 
+    // base dialog
+    // Unload Area
+    conf->Write("oftinfoUnloadAreaEnable", m_copy_UnloadAreaEnable);
+    conf->Write("oftinfoUnloadAreaVisible", m_copy_UnloadAreaVisible);
+    conf->Write("oftinfoOGVDataVisible", m_copy_OGVDataVisible);
+    conf->Write("oftinfoUnloadAreaSTBD", m_copy_UnloadAreaSTBD);
+    conf->Write("oftinfoUnloadAreaPORT", m_copy_UnloadAreaPORT);
+    conf->Write("oftinfoUnloadAreaAftTrig", m_copy_UnloadAreaAftTrig);
+    conf->Write("oftinfoUnloadAreaBowTrig", m_copy_UnloadAreaBowTrig);
+    conf->Write("oftinfoUnloadAreaHist", m_copy_UnloadAreaHist);
+    conf->Write("oftinfoUnloadAreaDistance", m_copy_UnloadAreaDistance);
+    conf->Write("oftinfoUnloadAreaLostTime", m_copy_UnloadAreaLostTime);
+    m_copy_IntUnloadAreaColour = m_copy_UnloadAreaColour.GetRGB();  // red, green, blue
+    conf->Write("oftinfoUnloadAreaColour", m_copy_IntUnloadAreaColour);
+    //  OGV
+    conf->Write("oftinfoOGVMMSI", m_copy_OGVMMSI);
+    conf->Write("oftinfoOGVName", m_copy_OGVName);
+    conf->Write("oftinfoOGVLoadTime", m_copy_OGVLoadTime);
+    conf->Write("oftinfoOGVMoorTime", m_copy_OGVMoorTime);
+    conf->Write("oftinfoOGVUnMoorTime", m_copy_OGVUnMoorTime);
+    // load Areas
+    conf->Write("oftinfoLoadAreaLostTime", m_copy_LoadAreaLostTime);
+    conf->Write("oftinfoLoadAreaHist", m_copy_LoadAreaHist);
+    conf->Write("oftinfoLoadAreaDistance", m_copy_LoadAreaDistance);
+    // Crane 1
+    conf->Write("oftinfoCrane1AreaEnable", m_copy_Crane1AreaEnable);
+    conf->Write("oftinfoCrane1AreaEnable", m_copy_Crane1AreaVisible);
+    conf->Write("oftinfoCrane1BargeDataVisible", m_copy_Crane1BargeDataVisible);
+    conf->Write("oftinfoCrane1AreaAftTrig", m_copy_Crane1AreaAftTrig);
+    conf->Write("oftinfoCrane1AreaBowTrig", m_copy_Crane1AreaBowTrig);
+    m_copy_IntCrane1AreaColour = m_copy_Crane1AreaColour.GetRGB();  // red, green, blue
+    conf->Write("oftinfoCrane1AreaColour", m_copy_IntCrane1AreaColour);
+    //  Crane 1 barge
+    conf->Write("oftinfoCrane1MMSI", m_copy_Crane1MMSI);
+    conf->Write("oftinfoCrane1Name", m_copy_Crane1Name);
+    conf->Write("oftinfoCrane1LoadTime", m_copy_Crane1LoadTime);
+    conf->Write("oftinfoCrane1MoorTime", m_copy_Crane1MoorTime);
+    conf->Write("oftinfoCrane1UnMoorTime", m_copy_Crane1UnMoorTime);
+    // Crane 2
+    conf->Write("oftinfoCrane2AreaEnable", m_copy_Crane2AreaEnable);
+    conf->Write("oftinfoCrane2AreaEnable", m_copy_Crane2AreaVisible);
+    conf->Write("oftinfoCrane2BargeDataVisible", m_copy_Crane2BargeDataVisible);
+    conf->Write("oftinfoCrane2AreaAftTrig", m_copy_Crane2AreaAftTrig);
+    conf->Write("oftinfoCrane2AreaBowTrig", m_copy_Crane2AreaBowTrig);
+    m_copy_IntCrane2AreaColour = m_copy_Crane2AreaColour.GetRGB();  // red, green, blue
+    conf->Write("oftinfoCrane2AreaColour", m_copy_IntCrane2AreaColour);
+    //  Crane 2 barge
+    conf->Write("oftinfoCrane2MMSI", m_copy_Crane2MMSI);
+    conf->Write("oftinfoCrane2Name", m_copy_Crane2Name);
+    conf->Write("oftinfoCrane2LoadTime", m_copy_Crane2LoadTime);
+    conf->Write("oftinfoCrane2MoorTime", m_copy_Crane2MoorTime);
+    conf->Write("oftinfoCrane2UnMoorTime", m_copy_Crane2UnMoorTime);
+    // Crane 3
+    conf->Write("oftinfoCrane3AreaEnable", m_copy_Crane3AreaEnable);
+    conf->Write("oftinfoCrane3AreaEnable", m_copy_Crane3AreaVisible);
+    conf->Write("oftinfoCrane3BargeDataVisible", m_copy_Crane3BargeDataVisible);
+    conf->Write("oftinfoCrane3AreaAftTrig", m_copy_Crane3AreaAftTrig);
+    conf->Write("oftinfoCrane3AreaBowTrig", m_copy_Crane3AreaBowTrig);
+    m_copy_IntCrane3AreaColour = m_copy_Crane3AreaColour.GetRGB();  // red, green, blue
+    conf->Write("oftinfoCrane3AreaColour", m_copy_IntCrane3AreaColour);
+    //  Crane 3 barge
+    conf->Write("oftinfoCrane3MMSI", m_copy_Crane3MMSI);
+    conf->Write("oftinfoCrane3Name", m_copy_Crane3Name);
+    conf->Write("oftinfoCrane3LoadTime", m_copy_Crane3LoadTime);
+    conf->Write("oftinfoCrane3MoorTime", m_copy_Crane3MoorTime);
+    conf->Write("oftinfoCrane3UnMoorTime", m_copy_Crane3UnMoorTime);
+    // Crane 4
+    conf->Write("oftinfoCrane4AreaEnable", m_copy_Crane4AreaEnable);
+    conf->Write("oftinfoCrane4AreaEnable", m_copy_Crane4AreaVisible);
+    conf->Write("oftinfoCrane4BargeDataVisible", m_copy_Crane4BargeDataVisible);
+    conf->Write("oftinfoCrane4AreaAftTrig", m_copy_Crane4AreaAftTrig);
+    conf->Write("oftinfoCrane4AreaBowTrig", m_copy_Crane4AreaBowTrig);
+    m_copy_IntCrane4AreaColour = m_copy_Crane4AreaColour.GetRGB();  // red, green, blue
+    conf->Write("oftinfoCrane4AreaColour", m_copy_IntCrane4AreaColour);
+    //  Crane 4 barge
+    conf->Write("oftinfoCrane4MMSI", m_copy_Crane4MMSI);
+    conf->Write("oftinfoCrane4Name", m_copy_Crane4Name);
+    conf->Write("oftinfoCrane4LoadTime", m_copy_Crane4LoadTime);
+    conf->Write("oftinfoCrane4MoorTime", m_copy_Crane4MoorTime);
+    conf->Write("oftinfoCrane4UnMoorTime", m_copy_Crane4UnMoorTime);
+
     conf->Write("DialogPosX", m_hr_dialog_x);
     conf->Write("DialogPosY", m_hr_dialog_y);
     conf->Write("DialogSizeX", m_hr_dialog_sx);
     conf->Write("DialogSizeY", m_hr_dialog_sy);
     
-    return true;
+   return true;
  
 }
 
@@ -706,6 +1056,51 @@ void OFTinfoPi::OnOFTinfoDialogClose() {
   SaveConfig();
 
   RequestRefresh(m_parent_window);  // refresh main window
+}
+
+void OFTinfoPi::SetMainTaskPeriod() {
+  int AISTransPeriod = 0;
+  m_copy_AISTransPeriod.ToInt(&AISTransPeriod, 10);
+  DebugMessage = "Start with " + m_copy_AISTransPeriod + "sec";
+  wxMessageBox(DebugMessage, "OFTinfo_Timer");
+  Start(1000 * AISTransPeriod, wxTIMER_CONTINUOUS);  // restart timer with new interval
+}
+
+//!!! main task cicle - timer tick
+void OFTinfoPi::Notify() {
+  m_AIS_Array = GetAISTargetArray();
+  ArrayOfPlugIn_AIS_Targets AIS_Array = *m_AIS_Array;
+  auto m_AIS_Array_capacity = to_string(AIS_Array.Count());
+  // wxMessageBox(m_AIS_Array_capacity, "OFTinfo_AIS Target Array");
+  if (m_copy_AisToFile) {  // transmit AIS targets to file
+    auto AISTargetfilePath = m_copy_AISFilePath + m_copy_AisFileName;
+    AISTargetfile = new wxTextFile(AISTargetfilePath);
+    AISTargetfile->Open();
+    AISTargetfile->Clear();
+  }
+
+  for (auto i = 0; i < AIS_Array.Count(); ++i) {
+    auto AisTargetMessage =
+        to_string(wxGetUTCTime()) + ";" + to_string(AIS_Array[i]->MMSI) +
+        ";" + AIS_Array[i]->ShipName + ";" + to_string(AIS_Array[i]->Brg) +
+        ";" + to_string(AIS_Array[i]->Range_NM) + ";" +
+        to_string(AIS_Array[i]->Lon) + ";" + to_string(AIS_Array[i]->Lat) +
+        ";" + to_string(AIS_Array[i]->HDG) + ";" +
+        to_string(AIS_Array[i]->COG) + ";" + to_string(AIS_Array[i]->SOG) +
+        ";" + to_string(int(AIS_Array[i]->ShipType));
+        //+ ";" +
+        //to_string(m_AIS_Array[i]->DimA) + ";" + to_string(m_AIS_Array[i]->DimB) + ";" +
+        //to_string(m_AIS_Array[i]->DimC) + ";" + to_string(m_AIS_Array[i]->DimD);
+    // wxMessageBox(AisTargetMessage, "AIS target");
+    if (m_copy_AisToFile) {  // transmit AIS targets to file
+      AISTargetfile->AddLine(AisTargetMessage);
+    }
+  }
+
+  if (AISTargetfile) {
+    AISTargetfile->Write();
+    AISTargetfile->Close();
+  }
 }
 
 

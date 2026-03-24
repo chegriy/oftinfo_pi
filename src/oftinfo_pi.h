@@ -48,7 +48,7 @@
 #include "oftinfo_gui_impl.h"
 
 
-class Dlg;
+class Dlg; // process setup dialog from  oftinfo_gui_impl.h
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -57,7 +57,8 @@ class Dlg;
 
 #define OFTinfo_TOOL_POSITION (-1)  ///< toolbar tool default positioning
 
-class OFTinfoPi : public opencpn_plugin_118 {
+class OFTinfoPi : public opencpn_plugin_118, wxTimer
+{
 public:
   explicit OFTinfoPi(void* ppimgr);
   ~OFTinfoPi() override;
@@ -79,6 +80,9 @@ public:
   wxString GetCommonName() override;
   wxString GetShortDescription() override;
   wxString GetLongDescription() override;
+
+  void Notify();
+  void SetMainTaskPeriod();
 
   //    The required override PlugIn Methods
   int GetToolbarToolCount() override;
@@ -102,8 +106,8 @@ public:
 
   int m_hr_dialog_x, m_hr_dialog_y;
 
-  [[nodiscard]] double GetCursorLat() const { return m_cursor_lat; }
-  [[nodiscard]] double GetCursorLon() const { return m_cursor_lon; }
+//  [[nodiscard]] double GetCursorLat() const { return m_cursor_lat; }
+//  [[nodiscard]] double GetCursorLon() const { return m_cursor_lon; }
 
   void ShowPreferencesDialog(wxWindow* parent) override;
 //  void SetPluginMessage(wxString& message_id, wxString& message_body) override;
@@ -111,8 +115,14 @@ public:
   wxBitmap m_panel_bitmap;
 
 private:
-  double m_cursor_lat;
-  double m_cursor_lon;
+  int m_MainTaskPeriod;
+  ArrayOfPlugIn_AIS_Targets* m_AIS_Array;
+  wxString DebugMessage;
+  wxTextFile* AISTargetfile;
+  //int *m_AIS;
+
+ // double m_cursor_lat;
+ // double m_cursor_lon;
 
   int m_position_menu_id;
   double m_gui_scale_factor;
@@ -170,6 +180,87 @@ private:
   wxString m_copy_SQLuser;
   wxString m_copy_SQLpassw;
   wxString m_copy_SQLDBName;
+
+  // base dialog
+  // Unload Area
+  bool m_copy_UnloadAreaEnable;
+  bool m_copy_UnloadAreaVisible;
+  bool m_copy_OGVDataVisible;
+  bool m_copy_UnloadAreaSTBD;
+  bool m_copy_UnloadAreaPORT;
+  wxString m_copy_UnloadAreaAftTrig;
+  wxString m_copy_UnloadAreaBowTrig;
+  wxString m_copy_UnloadAreaHist;
+  wxString m_copy_UnloadAreaDistance;
+  wxString m_copy_UnloadAreaLostTime;
+  wxColour m_copy_UnloadAreaColour;
+  int m_copy_IntUnloadAreaColour;
+  // OGV
+  wxString m_copy_OGVMMSI;
+  wxString m_copy_OGVName;
+  wxString m_copy_OGVLoadTime;
+  wxString m_copy_OGVMoorTime;
+  wxString m_copy_OGVUnMoorTime;
+  // load Areas
+  wxString m_copy_LoadAreaLostTime;
+  wxString m_copy_LoadAreaHist;
+  wxString m_copy_LoadAreaDistance;
+  // Crane 1
+  bool m_copy_Crane1AreaEnable;
+  bool m_copy_Crane1AreaVisible;
+  bool m_copy_Crane1BargeDataVisible;
+  wxString m_copy_Crane1AreaAftTrig;
+  wxString m_copy_Crane1AreaBowTrig;
+  wxColour m_copy_Crane1AreaColour;
+  int m_copy_IntCrane1AreaColour;
+  // Crane 1 barge
+  wxString m_copy_Crane1MMSI;
+  wxString m_copy_Crane1Name;
+  wxString m_copy_Crane1LoadTime;
+  wxString m_copy_Crane1MoorTime;
+  wxString m_copy_Crane1UnMoorTime;
+  // Crane 2
+  bool m_copy_Crane2AreaEnable;
+  bool m_copy_Crane2AreaVisible;
+  bool m_copy_Crane2BargeDataVisible;
+  wxString m_copy_Crane2AreaAftTrig;
+  wxString m_copy_Crane2AreaBowTrig;
+  wxColour m_copy_Crane2AreaColour;
+  int m_copy_IntCrane2AreaColour;
+  // Crane 2 barge
+  wxString m_copy_Crane2MMSI;
+  wxString m_copy_Crane2Name;
+  wxString m_copy_Crane2LoadTime;
+  wxString m_copy_Crane2MoorTime;
+  wxString m_copy_Crane2UnMoorTime;
+  // Crane 3
+  bool m_copy_Crane3AreaEnable;
+  bool m_copy_Crane3AreaVisible;
+  bool m_copy_Crane3BargeDataVisible;
+  wxString m_copy_Crane3AreaAftTrig;
+  wxString m_copy_Crane3AreaBowTrig;
+  wxColour m_copy_Crane3AreaColour;
+  int m_copy_IntCrane3AreaColour;
+  // Crane 3 barge
+  wxString m_copy_Crane3MMSI;
+  wxString m_copy_Crane3Name;
+  wxString m_copy_Crane3LoadTime;
+  wxString m_copy_Crane3MoorTime;
+  wxString m_copy_Crane3UnMoorTime;
+  // Crane 4
+  bool m_copy_Crane4AreaEnable;
+  bool m_copy_Crane4AreaVisible;
+  bool m_copy_Crane4BargeDataVisible;
+  wxString m_copy_Crane4AreaAftTrig;
+  wxString m_copy_Crane4AreaBowTrig;
+  wxColour m_copy_Crane4AreaColour;
+  int m_copy_IntCrane4AreaColour;
+  // Crane 4 barge
+  wxString m_copy_Crane4MMSI;
+  wxString m_copy_Crane4Name;
+  wxString m_copy_Crane4LoadTime;
+  wxString m_copy_Crane4MoorTime;
+  wxString m_copy_Crane4UnMoorTime;
 
 };
 

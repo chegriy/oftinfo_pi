@@ -61,12 +61,12 @@
       <property name="window_style"></property>
       <event name="OnClose">OnClose</event>
       <event name="OnLeftDClick">OnDLeftClick</event>
-      <object class="wxBoxSizer" expanded="false">
+      <object class="wxBoxSizer" expanded="true">
         <property name="minimum_size"></property>
         <property name="name">bSizer10</property>
         <property name="orient">wxVERTICAL</property>
         <property name="permission">none</property>
-        <object class="sizeritem" expanded="false">
+        <object class="sizeritem" expanded="true">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">0</property>
@@ -1058,7 +1058,7 @@
                     <property name="minimize_button">0</property>
                     <property name="minimum_size"></property>
                     <property name="moveable">1</property>
-                    <property name="name">m_textCtrlUnloadAreaDistance1</property>
+                    <property name="name">m_textCtrlUnloadAreaLostTime</property>
                     <property name="pane_border">1</property>
                     <property name="pane_position"></property>
                     <property name="pane_size"></property>
@@ -1883,11 +1883,11 @@
             </object>
           </object>
         </object>
-        <object class="sizeritem" expanded="false">
+        <object class="sizeritem" expanded="true">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxStaticBoxSizer" expanded="false">
+          <object class="wxStaticBoxSizer" expanded="true">
             <property name="id">wxID_ANY</property>
             <property name="label">Load areas</property>
             <property name="minimum_size"></property>
@@ -1895,7 +1895,7 @@
             <property name="orient">wxVERTICAL</property>
             <property name="parent">1</property>
             <property name="permission">none</property>
-            <object class="sizeritem" expanded="false">
+            <object class="sizeritem" expanded="true">
               <property name="border">5</property>
               <property name="flag">wxEXPAND</property>
               <property name="proportion">0</property>
@@ -2014,7 +2014,7 @@
                     <property name="minimize_button">0</property>
                     <property name="minimum_size"></property>
                     <property name="moveable">1</property>
-                    <property name="name">m_textCtrlUnloadAreaDistance11</property>
+                    <property name="name">m_textCtrlLoadAreaLostTime</property>
                     <property name="pane_border">1</property>
                     <property name="pane_position"></property>
                     <property name="pane_size"></property>
@@ -2161,7 +2161,7 @@
                     <property name="minimize_button">0</property>
                     <property name="minimum_size"></property>
                     <property name="moveable">1</property>
-                    <property name="name">m_textCtrlUnloadAreaHist1</property>
+                    <property name="name">m_textCtrlLoadAreaHist</property>
                     <property name="pane_border">1</property>
                     <property name="pane_position"></property>
                     <property name="pane_size"></property>
@@ -2288,7 +2288,7 @@
                     <property name="minimize_button">0</property>
                     <property name="minimum_size"></property>
                     <property name="moveable">1</property>
-                    <property name="name">m_textCtrlUnloadAreaDistance2</property>
+                    <property name="name">m_textCtrlLoadAreaDistance</property>
                     <property name="pane_border">1</property>
                     <property name="pane_position"></property>
                     <property name="pane_size"></property>
@@ -2314,11 +2314,11 @@
                 </object>
               </object>
             </object>
-            <object class="sizeritem" expanded="false">
+            <object class="sizeritem" expanded="true">
               <property name="border">5</property>
               <property name="flag">wxEXPAND</property>
               <property name="proportion">1</property>
-              <object class="wxFlexGridSizer" expanded="false">
+              <object class="wxFlexGridSizer" expanded="true">
                 <property name="cols">1</property>
                 <property name="flexible_direction">wxBOTH</property>
                 <property name="growablecols"></property>
@@ -2330,11 +2330,11 @@
                 <property name="permission">none</property>
                 <property name="rows">4</property>
                 <property name="vgap">10</property>
-                <object class="sizeritem" expanded="false">
+                <object class="sizeritem" expanded="true">
                   <property name="border">5</property>
                   <property name="flag">wxALL|wxEXPAND</property>
                   <property name="proportion">1</property>
-                  <object class="wxCollapsiblePane" expanded="false">
+                  <object class="wxCollapsiblePane" expanded="true">
                     <property name="BottomDockable">1</property>
                     <property name="LeftDockable">1</property>
                     <property name="RightDockable">1</property>
@@ -2393,7 +2393,7 @@
                     <property name="window_extra_style"></property>
                     <property name="window_name"></property>
                     <property name="window_style"></property>
-                    <object class="wxStaticBoxSizer" expanded="false">
+                    <object class="wxStaticBoxSizer" expanded="true">
                       <property name="id">wxID_ANY</property>
                       <property name="label">Crane 1 load area</property>
                       <property name="minimum_size"></property>
@@ -2401,7 +2401,7 @@
                       <property name="orient">wxVERTICAL</property>
                       <property name="parent">1</property>
                       <property name="permission">none</property>
-                      <object class="sizeritem" expanded="false">
+                      <object class="sizeritem" expanded="true">
                         <property name="border">5</property>
                         <property name="flag">wxEXPAND</property>
                         <property name="proportion">1</property>
@@ -2614,11 +2614,11 @@
                           </object>
                         </object>
                       </object>
-                      <object class="sizeritem" expanded="false">
+                      <object class="sizeritem" expanded="true">
                         <property name="border">5</property>
                         <property name="flag">wxEXPAND</property>
                         <property name="proportion">1</property>
-                        <object class="wxFlexGridSizer" expanded="false">
+                        <object class="wxFlexGridSizer" expanded="true">
                           <property name="cols">8</property>
                           <property name="flexible_direction">wxHORIZONTAL</property>
                           <property name="growablecols">3</property>
@@ -3012,11 +3012,11 @@
                           </object>
                         </object>
                       </object>
-                      <object class="sizeritem" expanded="false">
+                      <object class="sizeritem" expanded="true">
                         <property name="border">5</property>
                         <property name="flag">wxEXPAND</property>
                         <property name="proportion">1</property>
-                        <object class="wxFlexGridSizer" expanded="false">
+                        <object class="wxFlexGridSizer" expanded="true">
                           <property name="cols">6</property>
                           <property name="flexible_direction">wxHORIZONTAL</property>
                           <property name="growablecols">3</property>
@@ -7769,7 +7769,7 @@
         <event name="OnTimer">OnTimer</event>
       </object>
     </object>
-    <object class="Dialog" expanded="true">
+    <object class="Dialog" expanded="false">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg"></property>
@@ -7797,7 +7797,7 @@
       <property name="window_extra_style"></property>
       <property name="window_name"></property>
       <property name="window_style"></property>
-      <object class="wxStaticBoxSizer" expanded="true">
+      <object class="wxStaticBoxSizer" expanded="false">
         <property name="id">wxID_ANY</property>
         <property name="label">AIS Targets</property>
         <property name="minimum_size"></property>
@@ -7805,11 +7805,11 @@
         <property name="orient">wxVERTICAL</property>
         <property name="parent">1</property>
         <property name="permission">none</property>
-        <object class="sizeritem" expanded="true">
+        <object class="sizeritem" expanded="false">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxFlexGridSizer" expanded="true">
+          <object class="wxFlexGridSizer" expanded="false">
             <property name="cols">5</property>
             <property name="flexible_direction">wxBOTH</property>
             <property name="growablecols"></property>
@@ -8145,11 +8145,11 @@
             </object>
           </object>
         </object>
-        <object class="sizeritem" expanded="true">
+        <object class="sizeritem" expanded="false">
           <property name="border">5</property>
           <property name="flag">wxEXPAND</property>
           <property name="proportion">1</property>
-          <object class="wxStaticBoxSizer" expanded="true">
+          <object class="wxStaticBoxSizer" expanded="false">
             <property name="id">wxID_ANY</property>
             <property name="label">Target filter</property>
             <property name="minimum_size"></property>
