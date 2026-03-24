@@ -55,49 +55,11 @@ Dlg::Dlg(wxWindow* parent, wxWindowID id, const wxString& title,
     : OFTinfoBase(parent, id, title, pos, size, style) {
   this->Fit();
  
-  wxFileConfig* pConf = GetOCPNConfigObject();
-
-  if (pConf) {
-    pConf->SetPath("/PlugIns/OFTinfo_pi");
-
-    // AIS Targets
-    pConf->Read("oftinfoAisToFile", &m_bAisToFile, 1);
-    pConf->Read("oftinfoAisToMQTT", &m_bAisToMQTT, 0);
-    pConf->Read("oftinfoAisToPSQL", &m_bAisToPSQL, 0);
-    pConf->Read("oftinfoAISTransPeriod", &m_tAISTransPeriod, "20");
-    // Target filter
-    pConf->Read("oftinfoAISTargCargoOnly", &m_bAISTargCargoOnly, 1);
-    pConf->Read("oftinfoAisToAISTargZeroInc", &m_bAISTargZeroInc, 0);
-    // Own Ship
-    pConf->Read("oftinfoOwnMMSI", &m_tOwnMMSI, "123456789");
-    pConf->Read("oftinfoAISTransmitAIVDO", &m_bAISTransmitAIVDO, 1);
-    // OFT
-    pConf->Read("oftinfoOFTMMSI1", &m_tOFTMMSI1, "123456789");
-    pConf->Read("oftinfoOFTMMSI2", &m_tOFTMMSI2, "123456789");
-    // load areas
-    pConf->Read("oftinfoMonToFile", &m_bMonToFile, 1);
-    pConf->Read("oftinfoMonToMQTT", &m_bMonToMQTT, 0);
-    pConf->Read("oftinfoMonToPSQL", &m_bMonToPSQL, 0);
-    pConf->Read("oftinfoMonTransPeriod", &m_tMonTransPeriod, "20");
-    // file
-    pConf->Read("oftinfoAisFileName", &m_tAisFileName, "AISTargets");
-    pConf->Read("oftinfoAISFilePath", &m_tAISFilePath, "C:\\scripts");
-    // MQTT
-    pConf->Read("oftinfoMQTTBrokerIP", &m_tMQTTBrokerIP, "127.0.0.1");
-    pConf->Read("oftinfoMQTTBrokerPort", &m_tMQTTBrokerPort, "1883");
-    pConf->Read("oftinfoMQTTclientID", &m_tMQTTclientID, "OFTinfoMain");
-    pConf->Read("oftinfoMQTTuser", &m_tMQTTuser, "user");
-    pConf->Read("oftinfoMQTTpassw", &m_tMQTTpassw, "password");
-    pConf->Read("oftinfoMQTTPublishTopic", &m_tMQTTPublishTopic, "Cargo/OCPN");
-    pConf->Read("oftinfoMQTTSubscribeTopic", &m_tMQTTSubscribeTopic, "Cargo/OCPN");
-    // Postgresql
-    pConf->Read("oftinfoSQLip", &m_tSQLip, "127.0.0.1");
-    pConf->Read("oftinfoSQLport", &m_tSQLport, "5432");
-    pConf->Read("oftinfoSQLuser", &m_tSQLuser, "user");
-    pConf->Read("oftinfoSQLpassw", &m_tSQLpassw, "password");
-    pConf->Read("oftinfoSQLDBName", &m_tSQLDBName, "cargo");
-  }
+  
+ 
 }
+
+
 
 
 

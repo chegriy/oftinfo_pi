@@ -94,8 +94,8 @@ OFTinfoBase::OFTinfoBase( wxWindow* parent, wxWindowID id, const wxString& title
 	m_staticUnloadAreaLostTime->Wrap( -1 );
 	fgSizer5->Add( m_staticUnloadAreaLostTime, 0, wxALL, 5 );
 
-	m_textCtrlUnloadAreaDistance1 = new wxTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer5->Add( m_textCtrlUnloadAreaDistance1, 0, wxALL, 5 );
+	m_textCtrlUnloadAreaLostTime = new wxTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer5->Add( m_textCtrlUnloadAreaLostTime, 0, wxALL, 5 );
 
 	m_staticUnloadAreaColourPicker = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, _("Color:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticUnloadAreaColourPicker->Wrap( -1 );
@@ -183,8 +183,8 @@ OFTinfoBase::OFTinfoBase( wxWindow* parent, wxWindowID id, const wxString& title
 	m_staticUnloadAreaLostTime2->Wrap( -1 );
 	fgSizer51->Add( m_staticUnloadAreaLostTime2, 0, wxALL, 5 );
 
-	m_textCtrlUnloadAreaDistance11 = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer51->Add( m_textCtrlUnloadAreaDistance11, 0, wxALL, 5 );
+	m_textCtrlLoadAreaLostTime = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer51->Add( m_textCtrlLoadAreaLostTime, 0, wxALL, 5 );
 
 
 	fgSizer51->Add( 0, 0, 1, wxEXPAND, 5 );
@@ -196,15 +196,15 @@ OFTinfoBase::OFTinfoBase( wxWindow* parent, wxWindowID id, const wxString& title
 	m_staticUnloadAreaAftTrig11->Wrap( -1 );
 	fgSizer51->Add( m_staticUnloadAreaAftTrig11, 0, wxALL, 5 );
 
-	m_textCtrlUnloadAreaHist1 = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("10"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer51->Add( m_textCtrlUnloadAreaHist1, 0, wxALL, 5 );
+	m_textCtrlLoadAreaHist = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("10"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer51->Add( m_textCtrlLoadAreaHist, 0, wxALL, 5 );
 
 	m_staticUnloadAreaAftTrig211 = new wxStaticText( sbSizer31->GetStaticBox(), wxID_ANY, _("Distance(m):"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticUnloadAreaAftTrig211->Wrap( -1 );
 	fgSizer51->Add( m_staticUnloadAreaAftTrig211, 0, wxALL, 5 );
 
-	m_textCtrlUnloadAreaDistance2 = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer51->Add( m_textCtrlUnloadAreaDistance2, 0, wxALL, 5 );
+	m_textCtrlLoadAreaDistance = new wxTextCtrl( sbSizer31->GetStaticBox(), wxID_ANY, _("60"), wxDefaultPosition, wxDefaultSize, 0 );
+	fgSizer51->Add( m_textCtrlLoadAreaDistance, 0, wxALL, 5 );
 
 
 	sbSizer31->Add( fgSizer51, 0, wxEXPAND, 5 );
